@@ -10,5 +10,6 @@ typedef struct NodeRiwayat {
 
 void insertRiwayat(NodeRiwayat** head, Mobil data);
 void printRiwayat(NodeRiwayat* head);
+void printRiwayatTerbalik(NodeRiwayat* tail); // traversal backward
 
 #endif

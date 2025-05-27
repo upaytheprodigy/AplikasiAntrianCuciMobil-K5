@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "antrian.h"
 
+NodeAntrian* antrianVIP = NULL;
+NodeAntrian* antrianReguler = NULL;
+
 void enqueue(NodeAntrian** front, Mobil data) {
     NodeAntrian* newNode = (NodeAntrian*)malloc(sizeof(NodeAntrian));
     newNode->data = data;
