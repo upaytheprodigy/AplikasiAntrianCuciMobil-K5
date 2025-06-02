@@ -11,6 +11,6 @@ typedef struct {
     int estimasiSelesai;    // waktu selesai tahap akhir
     int durasiCuci;         // durasi total
     int statusProses;       // 0 = antri, 1 = cuci, 2 = bilas, 3 = selesai
-} Mobil;
+} Mobil; // Struktur data untuk menyimpan informasi mobil
 
 #endif

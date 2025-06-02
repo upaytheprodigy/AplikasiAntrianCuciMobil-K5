@@ -7,8 +7,8 @@ typedef struct NodePembatalan {
     struct NodePembatalan* next;
 } NodePembatalan;
 
-void pushPembatalan(NodePembatalan** top, Mobil data);
-Mobil popPembatalan(NodePembatalan** top);
-void printStackPembatalan(NodePembatalan* top);
+void pushPembatalan(NodePembatalan** top, Mobil data); // Push data ke stack pembatalan
+Mobil popPembatalan(NodePembatalan** top); // Pop data dari stack pembatalan
+void printStackPembatalan(NodePembatalan* top); // Print stack pembatalan
 
 #endif
