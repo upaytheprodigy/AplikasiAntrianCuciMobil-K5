@@ -9,8 +9,10 @@ typedef struct {
     char jalur[10];         // VIP / Reguler
     int waktuDatang;
     int estimasiSelesai;    // waktu selesai tahap akhir
-    int durasiCuci;         // durasi total
+    int durasiCuci, durasiBilas, durasiKering; // durasi total
     int statusProses;       // 0 = antri, 1 = cuci, 2 = bilas, 3 = selesai
 } Mobil; // Struktur data untuk menyimpan informasi mobil
+
+void tambahMobil(); // Fungsi untuk input dan proses data mobil
 
 #endif
