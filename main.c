@@ -1,23 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Sertakan header sesuai kebutuhan
 #include "header/antrian.h"
 #include "header/mobil.h"
 #include "header/kupon.h"
 #include "header/pembatalan.h"
 #include "header/riwayat.h"
-#include "header/treetime.h"
+#include "header/treewaktu.h"
+
+// Deklarasi antrian global
+NodeAntrian* antrianVIP = NULL;
+NodeAntrian* antrianReguler = NULL;
+NodeAntrian* antrianPembilasan = NULL;
+NodeAntrian* antrianPengeringan = NULL;
+
 
 void tampilkanMenu() {
     printf("=== PROGRAM ANTRIAN CUCI MOBIL ===\n");
     printf("1. Tambah Mobil\n");
     printf("2. Daftar Antrian\n");
-    printf("3. Daftar Selesai\n");
+    printf("3. Proses Antrian (Cuci → Bilas → Kering)\n");
     printf("4. Pembatalan Antrian\n");
     printf("5. Riwayat Mobil\n");
     printf("6. Manajemen Kupon\n");
-    printf("7. Keluar Program\n");
+    printf("7. Status Jalur Cuci\n");
+    printf("8. Rekap/Pencarian Waktu\n");
+    printf("9. Keluar Program\n");
     printf("Pilih menu: ");
 }
 
@@ -31,24 +39,30 @@ int main() {
 
         switch (pilihan) {
             case 1:
-                tambahMobil(); // dari mobil.c
-                break;
+                tambahMobil(); // Input data, tentukan VIP/Reguler, enqueue ke antrian yang sesuai
+                break; // dari mobil.h
             case 2:
-                tampilAntrian(); // dari antrian.c
-                break;
+                tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
+                break; // dari antrian.h
             case 3:
-                selesaikanAntrian(); // bisa dari treetime.c atau antrian.c
-                break;
+                selesaikanAntrian(); // Proses bertahap: cuci → bilas → kering → riwayat
+                break; // dari antrian.h
             case 4:
-                batalkanAntrian(); // dari pembatalan.c
-                break;
+                batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
+                break;  // dari pembatalan.h
             case 5:
-                tampilRiwayat(); // dari riwayat.c
-                break;
+                printRiwayat(); // Tampilkan riwayat pencucian
+                break; // dari riwayat.h
             case 6:
-                kelolaKupon(); // dari kupon.c
-                break;
+                kelolaKupon(); // Manajemen kupon pelanggan
+                break; // dari kupon.h
             case 7:
+                tampilkanStatusJalur(); // Tampilkan status slot cuci
+                break; // dari jalur.h
+            case 8:
+                rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
+                break; // dari treewaktu.h
+            case 9:
                 printf("Terima kasih!\n");
                 break;
             default:
@@ -56,7 +70,7 @@ int main() {
                 break;
         }
         system("pause");
-    } while (pilihan != 7);
+    } while (pilihan != 9);
 
     return 0;
 }
