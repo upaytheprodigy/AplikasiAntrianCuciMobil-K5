@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "mobil.h"
-#include "antrian.h"
+#include "header/mobil.h"
+#include "header/antrian.h"
 
 // Inisialisasi antrian global (VIP & Reguler)
 NodeAntrian* antrianVIP = NULL;
