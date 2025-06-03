@@ -8,7 +8,8 @@ typedef struct NodeRiwayat {
     struct NodeRiwayat* prev;
 } NodeRiwayat;
 
-void insertRiwayat(NodeRiwayat** head, Mobil data);
-void printRiwayat(NodeRiwayat* head);
+void insertRiwayat(NodeRiwayat** head, Mobil data); // Insert data ke riwayat
+void printRiwayat(NodeRiwayat* head); // traversal forward
+void printRiwayatTerbalik(NodeRiwayat* tail); // traversal backward
 
 #endif

@@ -1,34 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "mobil.h"
 #include "antrian.h"
 
-void enqueue(NodeAntrian** front, Mobil data) {
-    NodeAntrian* newNode = (NodeAntrian*)malloc(sizeof(NodeAntrian));
-    newNode->data = data;
-    newNode->next = NULL;
+// Inisialisasi antrian global (VIP & Reguler)
+NodeAntrian* antrianVIP = NULL;
+NodeAntrian* antrianReguler = NULL;
 
-    if (*front == NULL) {
-        *front = newNode;
-    } else {
-        NodeAntrian* temp = *front;
-        while (temp->next != NULL)
-            temp = temp->next;
-        temp->next = newNode;
-    }
+// Fungsi untuk menampilkan menu utama
+void tampilkanMenu() {
+    printf("\n");
+    printf("======================================================\n");
+    printf("             SISTEM ANTRIAN CUCI MOBIL               \n");
+    printf("======================================================\n");
+    printf("1. Tambah Mobil ke Antrian\n");
+    printf("2. Tampilkan Antrian VIP\n");
+    printf("3. Tampilkan Antrian Reguler\n");
+    printf("4. Keluar\n");
+    printf("------------------------------------------------------\n");
+    printf("Pilih menu: ");
 }
 
-Mobil dequeue(NodeAntrian** front) {
-    Mobil m = (*front)->data;
-    NodeAntrian* temp = *front;
-    *front = (*front)->next;
-    free(temp);
-    return m;
-}
+int main() {
+    int pilihan;
 
-void printQueue(NodeAntrian* front) {
-    while (front != NULL) {
-        printf("%s (%s) -> ", front->data.nama, front->data.platNomor);
-        front = front->next;
-    }
-    printf("NULL\n");
+    do {
+        tampilkanMenu();
+        scanf("%d", &pilihan);
+        getchar(); // menangkap newline agar tidak mengganggu input berikutnya
+
+        switch (pilihan) {
+            case 1:
+                tambahMobil();
+                break;
+            case 2:
+                printf("\n--- ANTRIAN VIP ---\n");
+                printQueue(antrianVIP, "VIP");
+                break;
+            case 3:
+                printf("\n--- ANTRIAN REGULER ---\n");
+                printQueue(antrianReguler, "Reguler");
+                break;
+            case 4:
+                printf("Keluar dari program.\n");
+                break;
+            default:
+                printf("Pilihan tidak valid. Silakan coba lagi.\n");
+        }
+    } while (pilihan != 4);
+
+    return 0;
 }
