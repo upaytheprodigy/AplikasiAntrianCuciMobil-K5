@@ -7,8 +7,10 @@
 // Variabel antrian global
 extern NodeAntrian* antrianVIP;
 extern NodeAntrian* antrianReguler;
-extern NodeAntrian* antrianBilas;
-extern NodeAntrian* antrianKering;
+extern NodeAntrian* antrianPembilasanVIP;
+extern NodeAntrian* antrianPembilasanReguler;
+extern NodeAntrian* antrianPengeringanVIP;
+extern NodeAntrian* antrianPengeringanReguler;
 extern NodeAntrian* riwayat;
 
 // Tambah mobil ke antrian (belakang)
@@ -97,32 +99,53 @@ void deleteMobil(NodeAntrian** front, int id) {
     printf("Mobil dengan ID %d tidak ditemukan dalam antrian.\n", id);
 }
 
-// Proses satu mobil: Cuci → Bilas → Kering → Selesai
-void selesaikanAntrian() {
-    Mobil m;
-    // Prioritaskan antrian VIP dulu
+// Proses satu mobil: Cuci -> Bilas -> Kering -> Selesai
+Mobil selesaikanAntrian() {
+    Mobil m = {-1}; // default jika tidak ada proses
+
+    // 1. Proses dari antrian cuci ke pembilasan
     if (antrianVIP != NULL) {
         m = dequeue(&antrianVIP);
-    } else if (antrianReguler != NULL) {
-        m = dequeue(&antrianReguler);
-    } else if (antrianBilas != NULL) {
-        m = dequeue(&antrianBilas);
-        printf("Mobil ID %d selesai tahap Bilas → lanjut Kering.\n", m.id);
-        enqueue(&antrianKering, m);
-        return;
-    } else if (antrianKering != NULL) {
-        m = dequeue(&antrianKering);
-        printf("Mobil ID %d selesai tahap Kering → masuk Riwayat.\n", m.id);
-        enqueue(&riwayat, m);
-        return;
-    } else {
-        printf("Tidak ada antrian yang sedang diproses.\n");
-        return;
+        printf("Mobil ID %d selesai Cuci VIP -> lanjut Bilas VIP.\n", m.id);
+        enqueue(&antrianPembilasanVIP, m);
+        m.id = -1; // Jangan dikirim ke riwayat
+        return m;
     }
-
-    // Masuk ke tahap bilas
-    printf("Mobil ID %d selesai Cuci → lanjut Bilas.\n", m.id);
-    enqueue(&antrianBilas, m);
+    if (antrianReguler != NULL) {
+        m = dequeue(&antrianReguler);
+        printf("Mobil ID %d selesai Cuci Reguler -> lanjut Bilas Reguler.\n", m.id);
+        enqueue(&antrianPembilasanReguler, m);
+        m.id = -1;
+        return m;
+    }
+    // 2. Proses dari pembilasan ke pengeringan
+    if (antrianPembilasanVIP != NULL) {
+        m = dequeue(&antrianPembilasanVIP);
+        printf("Mobil ID %d selesai Bilas VIP -> lanjut Pengeringan VIP.\n", m.id);
+        enqueue(&antrianPengeringanVIP, m);
+        m.id = -1;
+        return m;
+    }
+    if (antrianPembilasanReguler != NULL) {
+        m = dequeue(&antrianPembilasanReguler);
+        printf("Mobil ID %d selesai Bilas Reguler -> lanjut Pengeringan Reguler.\n", m.id);
+        enqueue(&antrianPengeringanReguler, m);
+        m.id = -1;
+        return m;
+    }
+    // 3. Proses dari pengeringan ke riwayat
+    if (antrianPengeringanVIP != NULL) {
+        m = dequeue(&antrianPengeringanVIP);
+        printf("Mobil ID %d selesai Pengeringan VIP -> masuk Riwayat.\n", m.id);
+        return m;
+    }
+    if (antrianPengeringanReguler != NULL) {
+        m = dequeue(&antrianPengeringanReguler);
+        printf("Mobil ID %d selesai Pengeringan Reguler -> masuk Riwayat.\n", m.id);
+        return m;
+    }
+    printf("Tidak ada antrian yang sedang diproses.\n");
+    return m;
 }
 
 // Menampilkan semua antrian secara menyeluruh
@@ -133,12 +156,15 @@ void tampilAntrian() {
     printf("\n======= ANTRIAN REGULER =======\n");
     printQueue(antrianReguler, "Reguler");
 
-    printf("\n======= PROSES BILAS =======\n");
-    printQueue(antrianBilas, "Bilas");
+    printf("\n======= PEMBILASAN VIP =======\n");
+    printQueue(antrianPembilasanVIP, "Pembilasan VIP");
 
-    printf("\n======= PROSES KERING =======\n");
-    printQueue(antrianKering, "Kering");
+    printf("\n======= PEMBILASAN REGULER =======\n");
+    printQueue(antrianPembilasanReguler, "Pembilasan Reguler");
 
-    printf("\n======= SELESAI (RIWAYAT) =======\n");
-    printQueue(riwayat, "Riwayat");
+    printf("\n======= PENGERINGAN VIP =======\n");
+    printQueue(antrianPengeringanVIP, "Pengeringan VIP");
+
+    printf("\n======= PENGERINGAN REGULER =======\n");
+    printQueue(antrianPengeringanReguler, "Pengeringan Reguler");
 }
