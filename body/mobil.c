@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../header/mobil.h"
 #include "../header/antrian.h"
+#include <time.h>
 
 // Deklarasi antrian global (harus didefinisikan di main program)
 extern NodeAntrian* antrianVIP;
@@ -73,9 +74,17 @@ void tambahMobil() {
         return;
     }
 
-    printf("Waktu Kedatangan [0 - 420] menit sejak jam 09.00 : ");
-    scanf("%d", &m.waktuDatang);
-    getchar(); // menangkap newline
+    // Hitung menit sejak jam 09.00
+    time_t now = time(NULL);
+    struct tm *local = localtime(&now);
+    int jam = local->tm_hour;
+    int menit = local->tm_min;
+    m.waktuDatang = (jam - 9) * 60 + menit;
+
+    if (m.waktuDatang < 0 || m.waktuDatang > 420) {
+        printf("\nWaktu sekarang di luar jam operasional (09.00 - 16.00).\n");
+        return;
+}
 
     if (m.waktuDatang < 0 || m.waktuDatang > 420) {
         printf("\nWaktu kedatangan di luar jam operasional (09.00 - 16.00).\n");
