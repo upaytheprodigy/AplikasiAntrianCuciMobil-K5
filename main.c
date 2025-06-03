@@ -1,11 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "mobil.h"
-#include "antrian.h"
+#include "header/mobil.h"
+#include "header/antrian.h"
+#include "header/riwayat.h"
 
 // Inisialisasi antrian global (VIP & Reguler)
 NodeAntrian* antrianVIP = NULL;
 NodeAntrian* antrianReguler = NULL;
+NodeAntrian* antrianPembilasanVIP = NULL;
+NodeAntrian* antrianPembilasanReguler = NULL;
+NodeAntrian* antrianPengeringanVIP = NULL;
+NodeAntrian* antrianPengeringanReguler = NULL;
+NodeRiwayat* riwayat = NULL;
 
 // Fungsi untuk menampilkan menu utama
 void tampilkanMenu() {
@@ -15,7 +21,7 @@ void tampilkanMenu() {
     printf("======================================================\n");
     printf("1. Tambah Mobil\n");
     printf("2. Daftar Antrian\n");
-    printf("3. Proses Antrian (Cuci → Bilas → Kering)\n");
+    printf("3. Proses Antrian (Cuci -> Bilas -> Kering)\n");
     printf("4. Pembatalan Antrian\n");
     printf("5. Riwayat Mobil\n");
     printf("6. Manajemen Kupon\n");
@@ -40,24 +46,28 @@ int main() {
             case 2:
                 tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
                 break; // dari antrian.h
-            case 3:
-                selesaikanAntrian(); // Proses bertahap: cuci → bilas → kering → riwayat
-                break; // dari antrian.h
-            case 4:
-                batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
-                break;  // dari pembatalan.h
-            case 5:
-                printRiwayat(); // Tampilkan riwayat pencucian
-                break; // dari riwayat.h
-            case 6:
-                kelolaKupon(); // Manajemen kupon pelanggan
-                break; // dari kupon.h
-            case 7:
-                tampilkanStatusJalur(); // Tampilkan status slot cuci
-                break; // dari jalur.h
-            case 8:
-                rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
-                break; // dari treewaktu.h
+            case 3: {
+                Mobil m = selesaikanAntrian(); // Proses bertahap: cuci -> bilas -> kering -> riwayat
+                if (m.id != -1) {
+                    insertRiwayat(&riwayat, m);
+                }
+                break;
+            }
+            // case 4:
+            //     batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
+            //     break;  // dari pembatalan.h
+            // case 5:
+            //     printRiwayat(); // Tampilkan riwayat pencucian
+            //     break; // dari riwayat.h
+            // case 6:
+            //     kelolaKupon(); // Manajemen kupon pelanggan
+            //     break; // dari kupon.h
+            // case 7:
+            //     tampilkanStatusJalur(); // Tampilkan status slot cuci
+            //     break; // dari jalur.h
+            // case 8:
+            //     rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
+            //     break; // dari treewaktu.h
             case 9:
                 printf("Terima kasih!\n");
                 break;
