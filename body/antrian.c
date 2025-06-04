@@ -1,3 +1,10 @@
+//===============================================================================================================
+// Program dibuat oleh: Rina Permata Dewi
+// NIM                : 241511061
+// Deskripsi File     : Implementasi fungsi antrian mobil (enqueue, dequeue, tampil, hapus) untuk sistem cuci mobil.
+// Tugas Besar SDA    : Aplikasi Antrian Cuci Mobil 
+//===============================================================================================================
+
 #include "../header/antrian.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,13 +50,13 @@ Mobil dequeue(NodeAntrian** front) {
 // Tampilkan semua isi antrian dengan format
 void printQueue(NodeAntrian* front, const char* jenis) {
     if (front == NULL) {
-        printf("Antrian %s kosong.\n", jenis);
+        printf("    (Antrian %s kosong)\n", jenis);
         return;
     }
     int i = 1;
     NodeAntrian* temp = front;
     while (temp != NULL) {
-        printf("%d. ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
+        printf("    %d. ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
             i, temp->data.id, temp->data.nama,
             temp->data.jenisMobil, temp->data.platNomor);
         temp = temp->next;
@@ -148,23 +155,33 @@ Mobil selesaikanAntrian() {
     return m;
 }
 
-// Menampilkan semua antrian secara menyeluruh
+// Menampilkan daftar antrian berdasarkan tahap proses dan jenis layanan
 void tampilAntrian() {
-    printf("\n======= ANTRIAN VIP =======\n");
-    printQueue(antrianVIP, "VIP");
+    printf("\n============== DAFTAR ANTRIAN ==============\n");
 
-    printf("\n======= ANTRIAN REGULER =======\n");
-    printQueue(antrianReguler, "Reguler");
+    // Antrian Cuci
+    printf("\n>> ANTRIAN TAHAP CUCI\n");
+    printf("  - Jalur VIP:\n");
+    printQueue(antrianVIP, "Cuci VIP");
 
-    printf("\n======= PEMBILASAN VIP =======\n");
-    printQueue(antrianPembilasanVIP, "Pembilasan VIP");
+    printf("  - Jalur Reguler:\n");
+    printQueue(antrianReguler, "Cuci Reguler");
 
-    printf("\n======= PEMBILASAN REGULER =======\n");
-    printQueue(antrianPembilasanReguler, "Pembilasan Reguler");
+    // Antrian Pembilasan
+    printf("\n>> ANTRIAN TAHAP BILAS\n");
+    printf("  - Jalur VIP:\n");
+    printQueue(antrianPembilasanVIP, "Bilas VIP");
 
-    printf("\n======= PENGERINGAN VIP =======\n");
-    printQueue(antrianPengeringanVIP, "Pengeringan VIP");
+    printf("  - Jalur Reguler:\n");
+    printQueue(antrianPembilasanReguler, "Bilas Reguler");
 
-    printf("\n======= PENGERINGAN REGULER =======\n");
-    printQueue(antrianPengeringanReguler, "Pengeringan Reguler");
+    // Antrian Pengeringan
+    printf("\n>> ANTRIAN TAHAP KERING\n");
+    printf("  - Jalur VIP:\n");
+    printQueue(antrianPengeringanVIP, "Kering VIP");
+
+    printf("  - Jalur Reguler:\n");
+    printQueue(antrianPengeringanReguler, "Kering Reguler");
+
+    printf("============================================\n");
 }
