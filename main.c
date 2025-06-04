@@ -49,10 +49,11 @@ int main() {
             case 3: {
                 Mobil m = selesaikanAntrian(); // Proses bertahap: cuci -> bilas -> kering -> riwayat
                 if (m.id != -1) {
-                    insertRiwayat(&riwayat, m);
+                    //insertRiwayat(&riwayat, m);
                 }
                 break;
             }
+
             // case 4:
             //     batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
             //     break;  // dari pembatalan.h
