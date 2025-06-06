@@ -155,33 +155,53 @@ Mobil selesaikanAntrian() {
     return m;
 }
 
-// Menampilkan daftar antrian berdasarkan tahap proses dan jenis layanan
+// Menampilkan submenu untuk daftar antrian berdasarkan tahap proses
 void tampilAntrian() {
-    printf("\n============== DAFTAR ANTRIAN ==============\n");
+    int pilihanSub;
 
-    // Antrian Cuci
-    printf("\n>> ANTRIAN TAHAP CUCI\n");
-    printf("  - Jalur VIP:\n");
-    printQueue(antrianVIP, "Cuci VIP");
+    do {
+        printf("\n============== DAFTAR ANTRIAN ==============\n");
+        printf("1. Tampilkan Antrian Tahap Cuci\n");
+        printf("2. Tampilkan Antrian Tahap Bilas\n");
+        printf("3. Tampilkan Antrian Tahap Kering\n");
+        printf("0. Kembali ke Menu Utama\n");
+        printf("============================================\n");
+        printf("Pilih menu: ");
+        scanf("%d", &pilihanSub);
+        getchar(); // Menangkap newline agar tidak loncat input
 
-    printf("  - Jalur Reguler:\n");
-    printQueue(antrianReguler, "Cuci Reguler");
+        switch (pilihanSub) {
+            case 1:
+                printf("\n>> ANTRIAN TAHAP CUCI\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianVIP, "Cuci VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianReguler, "Cuci Reguler");
+                break;
 
-    // Antrian Pembilasan
-    printf("\n>> ANTRIAN TAHAP BILAS\n");
-    printf("  - Jalur VIP:\n");
-    printQueue(antrianPembilasanVIP, "Bilas VIP");
+            case 2:
+                printf("\n>> ANTRIAN TAHAP BILAS\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianPembilasanVIP, "Bilas VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianPembilasanReguler, "Bilas Reguler");
+                break;
 
-    printf("  - Jalur Reguler:\n");
-    printQueue(antrianPembilasanReguler, "Bilas Reguler");
+            case 3:
+                printf("\n>> ANTRIAN TAHAP KERING\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianPengeringanVIP, "Kering VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianPengeringanReguler, "Kering Reguler");
+                break;
 
-    // Antrian Pengeringan
-    printf("\n>> ANTRIAN TAHAP KERING\n");
-    printf("  - Jalur VIP:\n");
-    printQueue(antrianPengeringanVIP, "Kering VIP");
+            case 0:
+                printf("Kembali ke Menu Utama...\n");
+                break;
 
-    printf("  - Jalur Reguler:\n");
-    printQueue(antrianPengeringanReguler, "Kering Reguler");
+            default:
+                printf("Pilihan tidak valid. Silakan pilih ulang.\n");
+        }
 
-    printf("============================================\n");
+    } while (pilihanSub != 0);
 }
