@@ -1,3 +1,10 @@
+//===============================================================================================================
+// Program dibuat oleh: Rina Permata Dewi
+// NIM                : 241511061
+// Deskripsi File     : Implementasi fungsi antrian mobil (enqueue, dequeue, tampil, hapus) untuk sistem cuci mobil.
+// Tugas Besar SDA    : Aplikasi Antrian Cuci Mobil 
+//===============================================================================================================
+
 #include "../header/antrian.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,13 +49,13 @@ Mobil dequeue(NodeAntrian** front) {
 // Tampilkan semua isi antrian dengan format
 void printQueue(NodeAntrian* front, const char* jenis) {
     if (front == NULL) {
-        printf("Antrian %s kosong.\n", jenis);
+        printf("    (Antrian %s kosong)\n", jenis);
         return;
     }
     int i = 1;
     NodeAntrian* temp = front;
     while (temp != NULL) {
-        printf("%d. ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
+        printf("    %d. ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
             i, temp->data.id, temp->data.nama,
             temp->data.jenisMobil, temp->data.platNomor);
         temp = temp->next;
@@ -147,23 +154,53 @@ Mobil selesaikanAntrian() {
     return m;
 }
 
-// Menampilkan semua antrian secara menyeluruh
+// Menampilkan submenu untuk daftar antrian berdasarkan tahap proses
 void tampilAntrian() {
-    printf("\n======= ANTRIAN VIP =======\n");
-    printQueue(antrianVIP, "VIP");
+    int pilihanSub;
 
-    printf("\n======= ANTRIAN REGULER =======\n");
-    printQueue(antrianReguler, "Reguler");
+    do {
+        printf("\n============== DAFTAR ANTRIAN ==============\n");
+        printf("1. Tampilkan Antrian Tahap Cuci\n");
+        printf("2. Tampilkan Antrian Tahap Bilas\n");
+        printf("3. Tampilkan Antrian Tahap Kering\n");
+        printf("0. Kembali ke Menu Utama\n");
+        printf("============================================\n");
+        printf("Pilih menu: ");
+        scanf("%d", &pilihanSub);
+        getchar(); // Menangkap newline agar tidak loncat input
 
-    printf("\n======= PEMBILASAN VIP =======\n");
-    printQueue(antrianPembilasanVIP, "Pembilasan VIP");
+        switch (pilihanSub) {
+            case 1:
+                printf("\n>> ANTRIAN TAHAP CUCI\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianVIP, "Cuci VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianReguler, "Cuci Reguler");
+                break;
 
-    printf("\n======= PEMBILASAN REGULER =======\n");
-    printQueue(antrianPembilasanReguler, "Pembilasan Reguler");
+            case 2:
+                printf("\n>> ANTRIAN TAHAP BILAS\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianPembilasanVIP, "Bilas VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianPembilasanReguler, "Bilas Reguler");
+                break;
 
-    printf("\n======= PENGERINGAN VIP =======\n");
-    printQueue(antrianPengeringanVIP, "Pengeringan VIP");
+            case 3:
+                printf("\n>> ANTRIAN TAHAP KERING\n");
+                printf("  - Jalur VIP:\n");
+                printQueue(antrianPengeringanVIP, "Kering VIP");
+                printf("  - Jalur Reguler:\n");
+                printQueue(antrianPengeringanReguler, "Kering Reguler");
+                break;
 
-    printf("\n======= PENGERINGAN REGULER =======\n");
-    printQueue(antrianPengeringanReguler, "Pengeringan Reguler");
+            case 0:
+                printf("Kembali ke Menu Utama...\n");
+                break;
+
+            default:
+                printf("Pilihan tidak valid. Silakan pilih ulang.\n");
+        }
+
+    } while (pilihanSub != 0);
 }

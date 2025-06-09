@@ -1,3 +1,11 @@
+//===============================================================================================================
+// Program dibuat oleh: Rina Permata Dewi
+// NIM                : 241511061
+// Deskripsi File     : Modul pendaftaran mobil, menentukan durasi cuci otomatis berdasarkan jenis mobil,
+//                      menghitung waktu kedatangan dari jam sistem, serta menampilkan estimasi selesai
+//                      dalam format jam:menit (hh.mm). Data mobil dimasukkan ke antrian sesuai jalur.
+//===============================================================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,11 +13,11 @@
 #include "../header/antrian.h"
 #include <time.h>
 
-// Deklarasi antrian global (harus didefinisikan di main program)
+// Deklarasi antrian global (didefinisikan di main.c)
 extern NodeAntrian* antrianVIP;
 extern NodeAntrian* antrianReguler;
 
-// ID otomatis global
+// ID otomatis
 int idCounter = 1;
 
 // Fungsi menghitung durasi total berdasarkan jenis mobil
@@ -23,19 +31,27 @@ int hitungDurasiTotal(const char* jenisMobil) {
     return 0;
 }
 
-// Fungsi garis pembatas
+// Fungsi bantu: mengubah menit sejak 09.00 menjadi format hh.mm (misal 10.30)
+void formatWaktu(int menitSejak0900, char* output) {
+    int totalMenit = 9 * 60 + menitSejak0900;
+    int jam = totalMenit / 60;
+    int menit = totalMenit % 60;
+    sprintf(output, "%02d.%02d", jam, menit);
+}
+
+// Fungsi pembatas visual
 void garis() {
     printf("======================================================\n");
 }
 
-// Header form UI
+// Header tampilan form
 void headerForm() {
     garis();
     printf("                FORM PENDAFTARAN MOBIL               \n");
     garis();
 }
 
-// Fungsi utama untuk menambah mobil ke antrian
+// Fungsi utama: tambah mobil ke antrian
 void tambahMobil() {
     Mobil m;
     m.id = idCounter++;
@@ -43,6 +59,7 @@ void tambahMobil() {
 
     headerForm();
 
+    // Input data pengguna
     printf("Nama Pemilik Mobil       : ");
     fflush(stdin);
     fgets(m.nama, sizeof(m.nama), stdin);
@@ -52,6 +69,7 @@ void tambahMobil() {
     fgets(m.jenisMobil, sizeof(m.jenisMobil), stdin);
     m.jenisMobil[strcspn(m.jenisMobil, "\n")] = '\0';
 
+    // Validasi jenis mobil dan hitung durasi
     int durasiTotal = hitungDurasiTotal(m.jenisMobil);
     if (durasiTotal == 0) {
         printf("\nJenis mobil tidak dikenali. Silakan coba lagi.\n");
@@ -66,6 +84,7 @@ void tambahMobil() {
     fgets(m.jalur, sizeof(m.jalur), stdin);
     m.jalur[strcspn(m.jalur, "\n")] = '\0';
 
+    // Validasi jalur
     int isVIP = (strcmp(m.jalur, "VIP") == 0 || strcmp(m.jalur, "vip") == 0);
     int isReguler = (strcmp(m.jalur, "Reguler") == 0 || strcmp(m.jalur, "reguler") == 0);
 
@@ -74,7 +93,7 @@ void tambahMobil() {
         return;
     }
 
-    // Hitung menit sejak jam 09.00
+    // Hitung waktu datang otomatis (menit sejak jam 09.00)
     time_t now = time(NULL);
     struct tm *local = localtime(&now);
     int jam = local->tm_hour;
@@ -84,19 +103,22 @@ void tambahMobil() {
     if (m.waktuDatang < 0 || m.waktuDatang > 420) {
         printf("\nWaktu sekarang di luar jam operasional (09.00 - 16.00).\n");
         return;
-}
-
-    if (m.waktuDatang < 0 || m.waktuDatang > 420) {
-        printf("\nWaktu kedatangan di luar jam operasional (09.00 - 16.00).\n");
-        return;
     }
 
-    // Perhitungan durasi berdasarkan persentase
+    // Hitung durasi berdasarkan persentase dari total durasi
     m.durasiCuci = durasiTotal * 0.5;
     m.durasiBilas = durasiTotal * 0.3;
     m.durasiKering = durasiTotal * 0.2;
+
+    // Hitung estimasi waktu selesai
     m.estimasiSelesai = m.waktuDatang + m.durasiCuci + m.durasiBilas + m.durasiKering;
 
+    // Format waktu tampil dalam hh.mm
+    char waktuDatangStr[6], waktuSelesaiStr[6];
+    formatWaktu(m.waktuDatang, waktuDatangStr);
+    formatWaktu(m.estimasiSelesai, waktuSelesaiStr);
+
+    // Tampilkan hasil input
     garis();
     printf("Data Mobil yang Didaftarkan:\n");
     printf("ID Mobil         : %d\n", m.id);
@@ -104,11 +126,11 @@ void tambahMobil() {
     printf("Jenis Mobil      : %s\n", m.jenisMobil);
     printf("Plat Nomor       : %s\n", m.platNomor);
     printf("Jalur            : %s\n", m.jalur);
-    printf("Waktu Datang     : %d menit sejak 09.00\n", m.waktuDatang);
-    printf("Estimasi Selesai : %d menit sejak 09.00\n", m.estimasiSelesai);
+    printf("Waktu Datang     : %s\n", waktuDatangStr);
+    printf("Estimasi Selesai : %s\n", waktuSelesaiStr);
     garis();
 
-    // Masukkan ke antrian sesuai jalur
+    // Tambahkan ke antrian
     if (isVIP) {
         enqueue(&antrianVIP, m);
         printf("Mobil dimasukkan ke antrian VIP.\n");
