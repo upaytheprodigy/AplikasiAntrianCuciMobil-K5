@@ -34,7 +34,7 @@ void tampilkanMenu() {
 int main() {
     int pilihan;
     do {
-        system("cls"); // Jika tidak jalan di DEV C, ganti dengan `system("clear");`
+        system("cls"); // Jika tidak jalan di DEV C, ganti dengan system("clear");
         tampilkanMenu();
         scanf("%d", &pilihan);
         getchar(); // Untuk menghindari input enter nyangkut

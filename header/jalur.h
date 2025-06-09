@@ -21,12 +21,11 @@ typedef struct {
     int waktuSelesai;// Waktu selesai pencucian (dalam menit)
 } JalurCuci;
 
-void inisialisasiJalur(JalurCuci jalur[]); // Inisialisasi jalur cuci
-int cariJalurKosong(JalurCuci jalur[], const char* tipe); // Cari jalur kosong berdasarkan tipe (VIP/Reguler)
+void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[]); // Inisialisasi jalur cuci
+int cariJalurKosong(JalurCuci jalur[],int jumlah, const char* tipe); // Cari jalur kosong berdasarkan tipe (VIP/Reguler)
 bool setJalur(JalurCuci* jalur, Mobil m, int waktuSelesai); // Set jalur cuci dengan mobil dan waktu selesai
 void kosongkanJalur(JalurCuci* jalur); // Kosongkan jalur cuci
-void tampilkanStatusJalur(JalurCuci jalur[]); // Tampilkan status semua jalur cuci
-bool semuaJalurPenuh(JalurCuci jalur[], const char* tipe); //OPSIONAL, untuk cek apakah semua jalur VIP atau Reguler sudah penuh
-
-
+void tampilkanAntrian(JalurCuci jalur[], JalurCuci jalurBilas[], JalurCuci jalurKering[]); // Tampilkan status semua jalur cuci
+bool semuaJalurPenuh(JalurCuci jalur[],int jumlah, const char* tipe); //OPSIONAL, untuk cek apakah semua jalur VIP atau Reguler sudah penuh
+void selesaikanAntrian(JalurCuci jalur[], int idJalur); // Selesaikan antrian pada jalur tertentu
 #endif
