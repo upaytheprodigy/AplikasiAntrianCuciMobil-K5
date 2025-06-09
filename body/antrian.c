@@ -11,7 +11,6 @@ extern NodeAntrian* antrianPembilasanVIP;
 extern NodeAntrian* antrianPembilasanReguler;
 extern NodeAntrian* antrianPengeringanVIP;
 extern NodeAntrian* antrianPengeringanReguler;
-extern NodeAntrian* riwayat;
 
 // Tambah mobil ke antrian (belakang)
 void enqueue(NodeAntrian** front, Mobil data) {
@@ -133,7 +132,7 @@ Mobil selesaikanAntrian() {
         m.id = -1;
         return m;
     }
-    // 3. Proses dari pengeringan ke riwayat
+    // 3. Proses dari pengeringan
     if (antrianPengeringanVIP != NULL) {
         m = dequeue(&antrianPengeringanVIP);
         printf("Mobil ID %d selesai Pengeringan VIP -> masuk Riwayat.\n", m.id);

@@ -50,6 +50,7 @@ int main() {
                 Mobil m = selesaikanAntrian(); // Proses bertahap: cuci -> bilas -> kering -> riwayat
                 if (m.id != -1) {
                     insertRiwayat(&riwayat, m);
+                    simpanRiwayatKeFile(riwayat);
                 }
                 break;
             }

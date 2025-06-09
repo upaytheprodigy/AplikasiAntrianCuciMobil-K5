@@ -19,3 +19,22 @@ void insertRiwayat(NodeRiwayat** head, Mobil data) {
         newNode->prev = temp;
     }
 }
+
+void simpanRiwayatKeFile(NodeRiwayat* head) {
+    FILE* file = fopen("../riwayat/riwayat.txt", "w");
+    if (!file) {
+        printf("Gagal membuka file riwayat/riwayat.txt\n");
+        return;
+    }
+    NodeRiwayat* temp = head;
+    while (temp != NULL) {
+        fprintf(file, "ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
+            temp->data.id,
+            temp->data.nama,
+            temp->data.jenisMobil,
+            temp->data.platNomor
+        );
+        temp = temp->next;
+    }
+    fclose(file);
+}
