@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../header/mobil.h"
+#include "../header/antrian.h"
 #include <time.h>
-#include "mobil.h"
-#include "antrian.h"
 
 // Deklarasi antrian global (didefinisikan di main.c)
 extern NodeAntrian* antrianVIP;
