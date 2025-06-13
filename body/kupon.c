@@ -1,5 +1,7 @@
-#include "kupon.h"
+#include "../header/kupon.h"
 #include <stdio.h>
+
+int kupon[100];
 
 void tampilkanKupon(const char* jenisMobil, int idKupon) {
     printf("\n==================== KUPON CUCI MOBIL ====================\n");
