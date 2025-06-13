@@ -2,10 +2,10 @@
 // Program dibuat oleh: Rina Permata Dewi
 // NIM                : 241511061
 // Deskripsi File     : Implementasi fungsi antrian mobil (enqueue, dequeue, tampil, hapus) untuk sistem cuci mobil.
-// Tugas Besar SDA    : Aplikasi Antrian Cuci Mobil 
 //===============================================================================================================
 
 #include "../header/antrian.h"
+#include "../header/pembatalan.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +18,10 @@ extern NodeAntrian* antrianPembilasanVIP;
 extern NodeAntrian* antrianPembilasanReguler;
 extern NodeAntrian* antrianPengeringanVIP;
 extern NodeAntrian* antrianPengeringanReguler;
+
+// External declarations for pembatalan functionality
+extern NodePembatalan* stackPembatalan;
+extern void pushPembatalan(NodePembatalan** top, Mobil data);
 
 // Tambah mobil ke antrian (belakang)
 void enqueue(NodeAntrian** front, Mobil data) {
@@ -203,4 +207,25 @@ void tampilAntrian() {
         }
 
     } while (pilihanSub != 0);
+}
+
+// Batalkan antrian mobil berdasarkan ID
+void batalkanAntrian(NodeAntrian** front, int id) {
+    // Find the mobil first
+    Mobil* mobilToCancel = findMobil(*front, id);
+    
+    if (mobilToCancel != NULL) {
+        // Store the mobil data before deleting
+        Mobil canceledMobil = *mobilToCancel;
+        
+        // Delete the mobil from queue
+        deleteMobil(front, id);
+        
+        // Push to pembatalan stack
+        pushPembatalan(&stackPembatalan, canceledMobil);
+        
+        printf("\nMobil dengan ID %d berhasil dibatalkan dan dipindahkan ke daftar pembatalan\n", id);
+    } else {
+        printf("\nMobil dengan ID %d tidak ditemukan dalam antrian\n", id);
+    }
 }

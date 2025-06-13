@@ -53,14 +53,30 @@ int main() {
                     simpanRiwayatKeFile(riwayat);
                 }
                 break;
+            }            case 4: {
+                int idMobil;
+                printf("\nMasukkan ID mobil yang ingin dibatalkan: ");
+                scanf("%d", &idMobil);
+                getchar(); // Consume newline
+                
+                // Try to find and cancel from VIP queue first
+                Mobil* mobilVIP = findMobil(antrianVIP, idMobil);
+                if (mobilVIP != NULL) {
+                    batalkanAntrian(&antrianVIP, idMobil);
+                } else {
+                    // If not found in VIP, try Regular queue
+                    Mobil* mobilReguler = findMobil(antrianReguler, idMobil);
+                    if (mobilReguler != NULL) {
+                        batalkanAntrian(&antrianReguler, idMobil);
+                    } else {
+                        printf("\nMobil dengan ID %d tidak ditemukan dalam antrian VIP maupun Reguler\n", idMobil);
+                    }
+                }
+                break;
             }
-
-            // case 4:
-            //     batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
-            //     break;  // dari pembatalan.h
-            // case 5:
-            //     printRiwayat(); // Tampilkan riwayat pencucian
-            //     break; // dari riwayat.h
+            case 5:
+                 printRiwayat(); // Tampilkan riwayat pencucian
+                 break; // dari riwayat.h
             // case 6:
             //     kelolaKupon(); // Manajemen kupon pelanggan
             //     break; // dari kupon.h
