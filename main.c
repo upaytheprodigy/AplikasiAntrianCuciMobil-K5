@@ -74,9 +74,9 @@ int main() {
                 }
                 break;
             }
-            case 5:
-                 printRiwayat(); // Tampilkan riwayat pencucian
-                 break; // dari riwayat.h
+            //case 5:
+                 //printRiwayat(); // Tampilkan riwayat pencucian
+                 //break; // dari riwayat.h
             // case 6:
             //     kelolaKupon(); // Manajemen kupon pelanggan
             //     break; // dari kupon.h
