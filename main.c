@@ -47,24 +47,46 @@ int main() {
             case 2:
                 tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
                 break; // dari antrian.h
-            case 3:
-                selesaikanAntrian(); // Proses bertahap: cuci → bilas → kering → riwayat
-                break; // dari antrian.h
-            case 4:
-                // batalkanAntrian(); // Batalkan mobil dari antrian, simpan ke stack pembatalan
-                // break;  // dari pembatalan.h
-            case 5:
-                // printRiwayat(); // Tampilkan riwayat pencucian
-                // break; // dari riwayat.h
-            case 6:
-                menuKupon(); // Manajemen kupon pelanggan
-                break; // dari kupon.h
-            case 7:
-                tampilAntrian(); // Tampilkan status slot cuci
-                break; // dari jalur.h
-            case 8:
-                // rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
-                // break; // dari treewaktu.h
+            case 3: {
+                Mobil m = selesaikanAntrian(); // Proses bertahap: cuci -> bilas -> kering -> riwayat
+                if (m.id != -1) {
+                    insertRiwayat(&riwayat, m);
+                    simpanRiwayatKeFile(riwayat);
+                }
+                break;
+            }            case 4: {
+                int idMobil;
+                printf("\nMasukkan ID mobil yang ingin dibatalkan: ");
+                scanf("%d", &idMobil);
+                getchar(); // Consume newline
+                
+                // Try to find and cancel from VIP queue first
+                Mobil* mobilVIP = findMobil(antrianVIP, idMobil);
+                if (mobilVIP != NULL) {
+                    batalkanAntrian(&antrianVIP, idMobil);
+                } else {
+                    // If not found in VIP, try Regular queue
+                    Mobil* mobilReguler = findMobil(antrianReguler, idMobil);
+                    if (mobilReguler != NULL) {
+                        batalkanAntrian(&antrianReguler, idMobil);
+                    } else {
+                        printf("\nMobil dengan ID %d tidak ditemukan dalam antrian VIP maupun Reguler\n", idMobil);
+                    }
+                }
+                break;
+            }
+            //case 5:
+                 //printRiwayat(); // Tampilkan riwayat pencucian
+                 //break; // dari riwayat.h
+            // case 6:
+            //     kelolaKupon(); // Manajemen kupon pelanggan
+            //     break; // dari kupon.h
+            // case 7:
+            //     tampilkanStatusJalur(); // Tampilkan status slot cuci
+            //     break; // dari jalur.h
+            // case 8:
+            //     rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
+            //     break; // dari treewaktu.h
             case 9:
                 printf("Terima kasih!\n");
                 break;

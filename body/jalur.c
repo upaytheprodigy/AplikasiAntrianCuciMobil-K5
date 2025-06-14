@@ -98,17 +98,3 @@ bool semuaJalurPenuh(JalurCuci jalur[], int jumlah, const char* tipe) {
     }
     return true;
 }
-
-void selesaikanAntrian(JalurCuci jalur[], int idJalur) {
-    if (idJalur < 0 || idJalur >= TOTAL_JALUR) {
-        printf("ID jalur tidak valid.\n");
-        return;
-    }
-    if (jalur[idJalur].sedangDigunakan) {
-        printf("Mobil %s dengan plat %s telah selesai dicuci.\n",
-               jalur[idJalur].mobilSedangDicuci.nama, jalur[idJalur].mobilSedangDicuci.platNomor);
-        kosongkanJalur(&jalur[idJalur]);
-    } else {
-        printf("Jalur %d tidak sedang digunakan.\n", idJalur + 1);
-    }
-}

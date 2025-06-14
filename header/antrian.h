@@ -14,6 +14,7 @@ void printQueue(NodeAntrian* front, const char* jenis); // Menampilkan antrian b
 int countQueue(NodeAntrian* front);  // OPSIONAL, untuk membandingkan reguler 1 dan 2
 Mobil* findMobil(NodeAntrian* front, int id);  // untuk pembatalan
 void deleteMobil(NodeAntrian** front, int id); // untuk menghapus mobil dari queue saat dibatalkan
+void batalkanAntrian(NodeAntrian** front, int id); // untuk membatalkan dan memindahkan mobil ke stack pembatalan
 Mobil selesaikanAntrian(); // Proses bertahap: cuci → bilas → kering → riwayat
 void tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
 
