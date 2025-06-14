@@ -12,5 +12,6 @@ void insertRiwayat(NodeRiwayat** head, Mobil data); // Insert data ke riwayat
 void simpanRiwayatKeFile(NodeRiwayat* head); // Simpan riwayat ke file
 void printRiwayat(NodeRiwayat* head); // traversal forward
 void printRiwayatTerbalik(NodeRiwayat* tail); // traversal backward
+void cariRiwayatMobil(NodeRiwayat* head, int mode, const char* keyword); // Cari riwayat berdasarkan ID atau nama
 
 #endif

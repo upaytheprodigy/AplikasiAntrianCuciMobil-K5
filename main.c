@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "header/mobil.h"
 #include "header/antrian.h"
 #include "header/riwayat.h"
@@ -59,12 +60,10 @@ int main() {
                 scanf("%d", &idMobil);
                 getchar(); // Consume newline
                 
-                // Try to find and cancel from VIP queue first
                 Mobil* mobilVIP = findMobil(antrianVIP, idMobil);
                 if (mobilVIP != NULL) {
                     batalkanAntrian(&antrianVIP, idMobil);
                 } else {
-                    // If not found in VIP, try Regular queue
                     Mobil* mobilReguler = findMobil(antrianReguler, idMobil);
                     if (mobilReguler != NULL) {
                         batalkanAntrian(&antrianReguler, idMobil);
@@ -74,9 +73,39 @@ int main() {
                 }
                 break;
             }
-            //case 5:
-                 //printRiwayat(); // Tampilkan riwayat pencucian
-                 //break; // dari riwayat.h
+            case 5: {
+                int subPilihan;
+                printf("\n=== Menu Riwayat Mobil ===\n");
+                printf("1. Tampilkan Riwayat\n");
+                printf("2. Tampilkan Riwayat Terbaru\n");
+                printf("3. Cari Riwayat Mobil\n");
+                printf("Pilih: ");
+                scanf("%d", &subPilihan);
+                getchar();
+                if (subPilihan == 1) {
+                    printRiwayat(riwayat);
+                } else if (subPilihan == 2) {
+                    printRiwayatTerbalik(riwayat);
+                } else if (subPilihan == 3) {
+                    int mode;
+                    char keyword[50];
+                    printf("Cari berdasarkan:\n");
+                    printf("1. Nama\n");
+                    printf("2. Jenis Mobil\n");
+                    printf("3. Plat Nomor\n");
+                    printf("4. Jalur\n");
+                    printf("Pilih: ");
+                    scanf("%d", &mode);
+                    getchar();
+                    printf("Masukkan kata kunci: ");
+                    fgets(keyword, sizeof(keyword), stdin);
+                    keyword[strcspn(keyword, "\n")] = 0; // hapus newline
+                    cariRiwayatMobil(riwayat, mode, keyword);
+                } else {
+                    printf("Pilihan tidak valid!\n");
+                }
+                break;
+            }
             // case 6:
             //     kelolaKupon(); // Manajemen kupon pelanggan
             //     break; // dari kupon.h
