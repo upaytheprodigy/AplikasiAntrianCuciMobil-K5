@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "mobil.h"
-#include "antrian.h"
+#include "../header/mobil.h"
+#include "../header/antrian.h"
 
 // Deklarasi antrian global (didefinisikan di main.c)
 extern NodeAntrian* antrianVIP;
