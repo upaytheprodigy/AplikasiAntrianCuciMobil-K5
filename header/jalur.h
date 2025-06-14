@@ -3,6 +3,7 @@
 
 #include "mobil.h"
 #include <stdbool.h>
+#include <pthread.h>
 
 // Jumlah total jalur cuci
 #define TOTAL_JALUR 4
@@ -14,18 +15,25 @@
 #define VIP_2     3
 
 typedef struct {
-    int sedangDigunakan;// 0 = kosong, 1 = sibuk
-    char tipe[10];// "VIP" atau "Reguler"
-    int idJalur;// 0 s/d 3
-    Mobil mobilSedangDicuci;// Mobil yang sedang diproses
-    int waktuSelesai;// Waktu selesai pencucian (dalam menit)
+    int sedangDigunakan;
+    char tipe[10];
+    int idJalur;
+    Mobil mobilSedangDicuci;
+    int waktuSelesai;
+    pthread_t threadId; // ID thread
 } JalurCuci;
 
-void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[]); // Inisialisasi jalur cuci
-int cariJalurKosong(JalurCuci jalur[],int jumlah, const char* tipe); // Cari jalur kosong berdasarkan tipe (VIP/Reguler)
-bool setJalur(JalurCuci* jalur, Mobil m, int waktuSelesai); // Set jalur cuci dengan mobil dan waktu selesai
-void kosongkanJalur(JalurCuci* jalur); // Kosongkan jalur cuci
-void tampilkanAntrian(JalurCuci jalur[], JalurCuci jalurBilas[], JalurCuci jalurKering[]); // Tampilkan status semua jalur cuci
-bool semuaJalurPenuh(JalurCuci jalur[],int jumlah, const char* tipe); //OPSIONAL, untuk cek apakah semua jalur VIP atau Reguler sudah penuh
-void selesaikanAntrian(JalurCuci jalur[], int idJalur); // Selesaikan antrian pada jalur tertentu
+// Mutex untuk sinkronisasi
+extern pthread_mutex_t antrianVIPMutex;
+extern pthread_mutex_t antrianRegulerMutex;
+extern pthread_mutex_t jalurCuciMutex;
+extern pthread_mutex_t jalurBilasMutex;
+extern pthread_mutex_t jalurKeringMutex;
+
+void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[]);
+int cariJalurKosong(JalurCuci jalur[], int jumlah, const char* tipe);
+
+void* prosesCuci(void* arg);
+void* prosesBilas(void* arg);
+void* prosesKering(void* arg);
 #endif
