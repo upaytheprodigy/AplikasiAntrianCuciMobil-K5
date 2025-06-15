@@ -9,9 +9,12 @@ typedef struct TreeWaktu {
     struct TreeWaktu* right;
 } TreeWaktu;
 
-TreeWaktu* insertTree(TreeWaktu* root, Mobil data); // Insert data ke dalam tree berdasarkan waktu selesai
-void inorderTraversal(TreeWaktu* root); // Traversal inorder untuk menampilkan data
-void rekapWaktu(TreeWaktu* root, int awal, int akhir, int* total); // Rekap total waktu dari awal hingga akhir
-void searchByWaktu(TreeWaktu* root, int waktu); // Cari mobil berdasarkan waktu selesai
+TreeWaktu* insertTreeWaktu(TreeWaktu* root, Mobil data, int waktuSelesai);
+void rekapWaktu(TreeWaktu* root, int waktuAwal, int waktuAkhir, int* total, int* vip, int* reguler);
+void rekapPerJam(TreeWaktu* root, int jam[24], int vip[24], int reguler[24]);
+void printRekapPerJam(TreeWaktu* root);
+void printMobilDalamRentang(TreeWaktu* root, int waktuAwal, int waktuAkhir);
+void tampilkanRekapPerJam(TreeWaktu* root);
+void tampilkanRekapRentangWaktu(TreeWaktu* root, int jamAwal, int menitAwal, int detikAwal, int jamAkhir, int menitAkhir, int detikAkhir);
 
 #endif

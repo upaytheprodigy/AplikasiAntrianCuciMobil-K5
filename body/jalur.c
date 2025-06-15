@@ -128,6 +128,7 @@ void* prosesKering(void* arg) {
 
     // Simpan waktu selesai (real time)
     time_t selesai = time(NULL);
+    jalur->mobilSedangDicuci.waktuSelesaiEpoch = selesai;
     struct tm *localSelesai = localtime(&selesai);
     strftime(jalur->mobilSedangDicuci.waktuSelesaiStr, sizeof(jalur->mobilSedangDicuci.waktuSelesaiStr), "%H:%M:%S", localSelesai);
 

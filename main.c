@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h> // Tambahkan ini
+#include <pthread.h>
 #include "header/mobil.h"
 #include "header/antrian.h"
 #include "header/riwayat.h"
 #include "header/jalur.h"
+#include "header/treewaktu.h"
 
 // Inisialisasi antrian global (VIP & Reguler)
 NodeAntrian* antrianVIP = NULL;
@@ -15,8 +16,9 @@ NodeAntrian* antrianPembilasanReguler = NULL;
 NodeAntrian* antrianPengeringanVIP = NULL;
 NodeAntrian* antrianPengeringanReguler = NULL;
 
-// Inisialisasi riwayat
+// Inisialisasi
 NodeRiwayat* riwayat = NULL;
+TreeWaktu* rootTreeWaktu = NULL;
 
 // waktu mulai simulasi
 time_t waktuMulaiSimulasi;
@@ -52,6 +54,7 @@ int main() {
         printf("4. Pembatalan Antrian\n");
         printf("5. Riwayat Mobil\n");
         printf("6. Manajemen Kupon\n");
+        printf("7. Rekap Waktu\n");
         printf("0. Keluar\n");
         printf("Pilih: ");
         scanf("%d", &pilihan);
@@ -71,62 +74,89 @@ int main() {
             case 4: {
                 int mode;
                 char keyword[50];
+                do {
+                    printf("\n=== Pembatalan Antrian ===\n");
+                    printf("1. Nama\n");
+                    printf("2. Jenis Mobil\n");
+                    printf("3. Plat Nomor\n");
+                    printf("0. Kembali\n");
+                    printf("Pilih: ");
+                    scanf("%d", &mode);
+                    getchar(); // Consume newline
 
-                printf("\n=== Pembatalan Antrian ===\n");
-                printf("Cari berdasarkan:\n");
-                printf("1. Nama\n");
-                printf("2. Jenis Mobil\n");
-                printf("3. Plat Nomor\n");
-                printf("Pilih: ");
-                scanf("%d", &mode);
-                getchar(); // Consume newline
+                    if (mode == 0) break;
 
-                printf("Masukkan kata kunci: ");
-                fgets(keyword, sizeof(keyword), stdin);
-                keyword[strcspn(keyword, "\n")] = 0; // Hapus newline
+                    printf("Masukkan kata kunci: ");
+                    fgets(keyword, sizeof(keyword), stdin);
+                    keyword[strcspn(keyword, "\n")] = 0; // Hapus newline
 
-                batalkanAntrian(mode, keyword);
+                    batalkanAntrian(mode, keyword);
+                } while (mode != 0);
                 break;
             }
             case 5: {
                 int subPilihan;
-                printf("\n=== Menu Riwayat Mobil ===\n");
-                printf("1. Semua Riwayat\n");
-                printf("2. Riwayat VIP\n");
-                printf("3. Riwayat Reguler\n");
-                printf("Pilih: ");
-                scanf("%d", &subPilihan);
-                getchar();
-                int cari = 0;
-                char keyword[50];
-                printf("Cari data? (1=Ya, 0=Tidak): ");
-                scanf("%d", &cari);
-                getchar();
-                if (cari) {
-                    printf("Masukkan kata kunci: ");
-                    fgets(keyword, sizeof(keyword), stdin);
-                    keyword[strcspn(keyword, "\n")] = 0;
-                }
-                if (subPilihan == 1) {
-                    printRiwayatFilter(riwayat, 0, cari ? keyword : NULL);
-                } else if (subPilihan == 2) {
-                    printRiwayatFilter(riwayat, 1, cari ? keyword : NULL);
-                } else if (subPilihan == 3) {
-                    printRiwayatFilter(riwayat, 2, cari ? keyword : NULL);
-                } else {
-                    printf("Pilihan tidak valid!\n");
-                }
+                do {
+                    printf("\n=== Menu Riwayat Mobil ===\n");
+                    printf("1. Semua Riwayat\n");
+                    printf("2. Riwayat VIP\n");
+                    printf("3. Riwayat Reguler\n");
+                    printf("0. Kembali\n");
+                    printf("Pilih: ");
+                    scanf("%d", &subPilihan);
+                    getchar();
+                    if (subPilihan == 0) break;
+                    int cari = 0;
+                    char keyword[50];
+                    printf("Cari data? (1=Ya, 0=Tidak): ");
+                    scanf("%d", &cari);
+                    getchar();
+                    if (cari) {
+                        printf("Masukkan kata kunci: ");
+                        fgets(keyword, sizeof(keyword), stdin);
+                        keyword[strcspn(keyword, "\n")] = 0;
+                    }
+                    if (subPilihan == 1) {
+                        printRiwayatFilter(riwayat, 0, cari ? keyword : NULL);
+                    } else if (subPilihan == 2) {
+                        printRiwayatFilter(riwayat, 1, cari ? keyword : NULL);
+                    } else if (subPilihan == 3) {
+                        printRiwayatFilter(riwayat, 2, cari ? keyword : NULL);
+                    } else {
+                        printf("Pilihan tidak valid!\n");
+                    }
+                } while (subPilihan != 0);
                 break;
             }
             // case 6:
             //     kelolaKupon(); // Manajemen kupon pelanggan
             //     break; // dari kupon.h
-            // case 7:
-            //     tampilkanStatusJalur(); // Tampilkan status slot cuci
-            //     break; // dari jalur.h
-            // case 8:
-            //     rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
-            //     break; // dari treewaktu.h   
+            case 7: {
+                int sub;
+                do {
+                    printf("\n=== MENU REKAP WAKTU ===\n");
+                    printf("1. Rekap per Jam\n");
+                    printf("2. Rekap Rentang Waktu\n");
+                    printf("0. Kembali\n");
+                    printf("Pilih: ");
+                    scanf("%d", &sub);
+                    getchar();
+                    if (sub == 0) break;
+                    if (sub == 1) {
+                        tampilkanRekapPerJam(rootTreeWaktu);
+                    } else if (sub == 2) {
+                        int jamAwal, menitAwal, detikAwal, jamAkhir, menitAkhir, detikAkhir;
+                        printf("Masukkan jam awal (hh mm ss): ");
+                        scanf("%d %d %d", &jamAwal, &menitAwal, &detikAwal);
+                        printf("Masukkan jam akhir (hh mm ss): ");
+                        scanf("%d %d %d", &jamAkhir, &menitAkhir, &detikAkhir);
+                        tampilkanRekapRentangWaktu(rootTreeWaktu, jamAwal, menitAwal, detikAwal, jamAkhir, menitAkhir, detikAkhir);
+                    } else {
+                        printf("Pilihan tidak valid!\n");
+                    }
+                } while (sub != 0);
+                break;
+            }
             case 0:
                 printf("Terima kasih!\n");
                 break;
