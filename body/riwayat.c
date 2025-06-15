@@ -1,16 +1,10 @@
 #include "../header/riwayat.h"
+#include "../header/treewaktu.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 int jumlahDataBaruRiwayat = 0;
-
-void formatWaktuDetik(int detik, char* output) {
-    int jam = detik / 3600;
-    int menit = (detik % 3600) / 60;
-    int dtk = detik % 60;
-    sprintf(output, "%02d:%02d:%02d", jam, menit, dtk);
-}
 
 // Fungsi insert ke riwayat (doubly linked list, di akhir)
 void insertRiwayat(NodeRiwayat** head, Mobil data) {
@@ -34,6 +28,7 @@ void insertRiwayat(NodeRiwayat** head, Mobil data) {
         simpanRiwayatKeFile(*head);
         jumlahDataBaruRiwayat = 0;
     }
+    rootTreeWaktu = insertTreeWaktu(rootTreeWaktu, data, data.waktuSelesaiEpoch);
 }
 
 void simpanRiwayatKeFile(NodeRiwayat* head) {
@@ -128,10 +123,6 @@ void printRiwayatFilter(NodeRiwayat* head, int mode, const char* keyword) {
             }
         }
         if (cocok) {
-            formatWaktuDetik(temp->data.waktuDatang, masuk);
-            formatWaktuDetik(temp->data.waktuMulaiCuci, mulai);
-            formatWaktuDetik(temp->data.estimasiSelesai, estimasi);
-            formatWaktuDetik(temp->data.waktuSelesai, selesai);
             printf("| %-5d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
                 temp->data.id,
                 temp->data.nama,
@@ -150,40 +141,4 @@ void printRiwayatFilter(NodeRiwayat* head, int mode, const char* keyword) {
         printf("| %-94s |\n", "Data tidak ditemukan.");
     }
     printf("====================================================================================================\n");
-}
-
-void cariRiwayatMobil(NodeRiwayat* head, int mode, const char* keyword) {
-    int found = 0;
-    NodeRiwayat* temp = head;
-    while (temp != NULL) {
-        int cocok = 0;
-        switch (mode) {
-            case 1: // Nama
-                if (strstr(temp->data.nama, keyword)) cocok = 1;
-                break;
-            case 2: // Jenis Mobil
-                if (strcmp(temp->data.jenisMobil, keyword) == 0) cocok = 1;
-                break;
-            case 3: // Plat Nomor
-                if (strstr(temp->data.platNomor, keyword)) cocok = 1;
-                break;
-            case 4: // Jalur
-                if (strcmp(temp->data.jalur, keyword) == 0) cocok = 1;
-                break;
-        }
-        if (cocok) {
-            printf("ID: %d | Nama: %s | Jenis: %s | Plat: %s | Jalur: %s\n",
-                temp->data.id,
-                temp->data.nama,
-                temp->data.jenisMobil,
-                temp->data.platNomor,
-                temp->data.jalur
-            );
-            found = 1;
-        }
-        temp = temp->next;
-    }
-    if (!found) {
-        printf("Data tidak ditemukan.\n");
-    }
 }
