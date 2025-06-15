@@ -52,6 +52,12 @@ int estimasiSelesaiTerakhir(NodeAntrian* front, int waktuDatang, int durasiTotal
 //     int menit = totalMenit % 60;
 //     sprintf(output, "%02d.%02d", jam, menit);
 // }
+void formatWaktu(int detikSejakMulai, char* output) { //
+    int jam = detikSejakMulai / 3600;
+    int menit = (detikSejakMulai % 3600) / 60;
+    int detik = detikSejakMulai % 60;
+    sprintf(output, "%02d:%02d:%02d", jam, menit, detik);
+}
 
 // Fungsi pembatas visual
 void garis() {
@@ -151,6 +157,8 @@ void tambahMobil() {
 
     // Format waktu tampil dalam hh.mm
     char waktuDatangStr[6], waktuSelesaiStr[6];
+    formatWaktu(m.waktuDatang, waktuDatangStr);
+    formatWaktu(m.estimasiSelesai, waktuSelesaiStr);
 
     // Tampilkan hasil input
     garis();
@@ -160,8 +168,8 @@ void tambahMobil() {
     printf("Jenis Mobil      : %s\n", m.jenisMobil);
     printf("Plat Nomor       : %s\n", m.platNomor);
     printf("Jalur            : %s\n", m.jalur);
-    printf("Waktu Datang     : %s\n", m.waktuDatangStr);
-    printf("Estimasi Selesai : %s\n", m.estimasiSelesaiStr);
+    printf("Waktu Datang     : %s\n", waktuDatangStr);
+    printf("Estimasi Selesai : %s\n", waktuSelesaiStr);
     garis();
 
     // Tambahkan ke antrian
