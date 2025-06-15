@@ -3,6 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+int jumlahDataBaruRiwayat = 0;
+
+void formatWaktuDetik(int detik, char* output) {
+    int jam = detik / 3600;
+    int menit = (detik % 3600) / 60;
+    int dtk = detik % 60;
+    sprintf(output, "%02d:%02d:%02d", jam, menit, dtk);
+}
+
 // Fungsi insert ke riwayat (doubly linked list, di akhir)
 void insertRiwayat(NodeRiwayat** head, Mobil data) {
     NodeRiwayat* newNode = (NodeRiwayat*)malloc(sizeof(NodeRiwayat));
@@ -19,64 +28,128 @@ void insertRiwayat(NodeRiwayat** head, Mobil data) {
         temp->next = newNode;
         newNode->prev = temp;
     }
+
+    jumlahDataBaruRiwayat++;
+    if (jumlahDataBaruRiwayat >= 2) {
+        simpanRiwayatKeFile(*head);
+        jumlahDataBaruRiwayat = 0;
+    }
 }
 
 void simpanRiwayatKeFile(NodeRiwayat* head) {
-    FILE* file = fopen("../riwayat/riwayat.txt", "w");
+    FILE* file = fopen("riwayat/riwayat.txt", "w"); // mode tulis ulang agar tabel selalu rapi
     if (!file) {
         printf("Gagal membuka file riwayat/riwayat.txt\n");
         return;
     }
+
+    // Tabel VIP
+    fprintf(file, "====================================================================================================\n");
+    fprintf(file, "| %-4s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+        "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
+    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
     NodeRiwayat* temp = head;
+    int adaVIP = 0;
     while (temp != NULL) {
-        fprintf(file, "ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
-            temp->data.id,
-            temp->data.nama,
-            temp->data.jenisMobil,
-            temp->data.platNomor
-        );
+        if (strcasecmp(temp->data.jalur, "VIP") == 0) {
+            fprintf(file, "| %-4d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+                temp->data.id,
+                temp->data.nama,
+                temp->data.jenisMobil,
+                temp->data.platNomor,
+                temp->data.waktuDatangStr,
+                temp->data.waktuMulaiCuciStr,
+                temp->data.estimasiSelesaiStr,
+                temp->data.waktuSelesaiStr
+            );
+            adaVIP = 1;
+        }
         temp = temp->next;
     }
+    if (!adaVIP) {
+        fprintf(file, "| %-94s |\n", "Belum ada riwayat VIP.");
+    }
+    fprintf(file, "====================================================================================================\n\n");
+
+    // Tabel Reguler
+    fprintf(file, "====================================================================================================\n");
+    fprintf(file, "| %-4s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+        "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
+    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
+    temp = head;
+    int adaReguler = 0;
+    while (temp != NULL) {
+        if (strcasecmp(temp->data.jalur, "Reguler") == 0) {
+            fprintf(file, "| %-4d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+                temp->data.id,
+                temp->data.nama,
+                temp->data.jenisMobil,
+                temp->data.platNomor,
+                temp->data.waktuDatangStr,
+                temp->data.waktuMulaiCuciStr,
+                temp->data.estimasiSelesaiStr,
+                temp->data.waktuSelesaiStr
+            );
+            adaReguler = 1;
+        }
+        temp = temp->next;
+    }
+    if (!adaReguler) {
+        fprintf(file, "| %-94s |\n", "Belum ada riwayat Reguler.");
+    }
+    fprintf(file, "====================================================================================================\n");
+
     fclose(file);
 }
 
-void printRiwayat(NodeRiwayat* head) {
-    printf("\n===== RIWAYAT CUCI MOBIL =====\n");
+void printRiwayatFilter(NodeRiwayat* head, int mode, const char* keyword) {
+    printf("\n====================================================================================================\n");
+    printf("| %-5s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+    "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
+    printf("----------------------------------------------------------------------------------------------------\n");
     if (head == NULL) {
-        printf("Belum ada riwayat.\n");
+        printf("| %-94s |\n", "Belum ada riwayat.");
+        printf("====================================================================================================\n");
         return;
     }
     NodeRiwayat* temp = head;
+    int found = 0;
+    char masuk[10], mulai[10], estimasi[10], selesai[10];
     while (temp != NULL) {
-        printf("ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
-            temp->data.id,
-            temp->data.nama,
-            temp->data.jenisMobil,
-            temp->data.platNomor
-        );
+        int cocok = 1;
+        if (mode == 1 && strcasecmp(temp->data.jalur, "VIP") != 0) cocok = 0;
+        if (mode == 2 && strcasecmp(temp->data.jalur, "Reguler") != 0) cocok = 0;
+        if (keyword && strlen(keyword) > 0) {
+            if (!strstr(temp->data.nama, keyword) &&
+                !strstr(temp->data.jenisMobil, keyword) &&
+                !strstr(temp->data.platNomor, keyword) &&
+                !strstr(temp->data.jalur, keyword)) {
+                cocok = 0;
+            }
+        }
+        if (cocok) {
+            formatWaktuDetik(temp->data.waktuDatang, masuk);
+            formatWaktuDetik(temp->data.waktuMulaiCuci, mulai);
+            formatWaktuDetik(temp->data.estimasiSelesai, estimasi);
+            formatWaktuDetik(temp->data.waktuSelesai, selesai);
+            printf("| %-5d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
+                temp->data.id,
+                temp->data.nama,
+                temp->data.jenisMobil,
+                temp->data.platNomor,
+                temp->data.waktuDatangStr,
+                temp->data.waktuMulaiCuciStr,
+                temp->data.estimasiSelesaiStr,
+                temp->data.waktuSelesaiStr
+            );
+            found = 1;
+        }
         temp = temp->next;
     }
-}
-
-void printRiwayatTerbalik(NodeRiwayat* tail) {
-    printf("\n===== RIWAYAT CUCI MOBIL (TERBALIK) =====\n");
-    if (tail == NULL) {
-        printf("Belum ada riwayat.\n");
-        return;
+    if (!found) {
+        printf("| %-94s |\n", "Data tidak ditemukan.");
     }
-    NodeRiwayat* temp = tail;
-    while (temp->next != NULL) {
-        temp = temp->next; // cari node paling akhir
-    }
-    while (temp != NULL) {
-        printf("ID: %d | Nama: %s | Jenis: %s | Plat: %s\n",
-            temp->data.id,
-            temp->data.nama,
-            temp->data.jenisMobil,
-            temp->data.platNomor
-        );
-        temp = temp->prev;
-    }
+    printf("====================================================================================================\n");
 }
 
 void cariRiwayatMobil(NodeRiwayat* head, int mode, const char* keyword) {

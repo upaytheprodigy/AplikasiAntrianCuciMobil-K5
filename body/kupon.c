@@ -1,7 +1,7 @@
 #include "../header/kupon.h"
 #include <stdio.h>
 
-int kupon[100];
+int kupon[100] = {0};
 
 void tampilkanKupon(const char* jenisMobil, int idKupon) {
     printf("\n==================== KUPON CUCI MOBIL ====================\n");
@@ -26,3 +26,12 @@ int cekKupon(int id) {
     }
     return kupon[id];
 }
+
+void menuKupon() {
+    int id;
+    printf("Masukkan ID Pelanggan: ");
+    scanf("%d", &id);
+    int jumlahKupon = cekKupon(id);
+    printf("Jumlah Kupon Pelanggan ID %d: %d\n", id, jumlahKupon);
+}
+    
