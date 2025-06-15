@@ -1,0 +1,2 @@
+ID: 1 | Nama: opel | Jenis: kecil | Plat: k 8593 | Masuk: 00:00:-2 | Mulai: 00:00:00 | Estimasi: 45 | Selesai: 554583:21:45
+ID: 2 | Nama: vio | Jenis: kecil | Plat: k 9835 krt | Masuk: 00:00:-2 | Mulai: 00:00:00 | Estimasi: 45 | Selesai: 554583:21:45

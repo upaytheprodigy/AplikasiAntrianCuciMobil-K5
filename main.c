@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h> // Tambahkan ini
 #include "header/mobil.h"
 #include "header/antrian.h"
 #include "header/riwayat.h"
+#include "header/jalur.h"
 
 // Inisialisasi antrian global (VIP & Reguler)
 NodeAntrian* antrianVIP = NULL;
@@ -12,95 +14,105 @@ NodeAntrian* antrianPembilasanVIP = NULL;
 NodeAntrian* antrianPembilasanReguler = NULL;
 NodeAntrian* antrianPengeringanVIP = NULL;
 NodeAntrian* antrianPengeringanReguler = NULL;
+
+// Inisialisasi riwayat
 NodeRiwayat* riwayat = NULL;
 
-// Fungsi untuk menampilkan menu utama
-void tampilkanMenu() {
-    printf("\n");
-    printf("======================================================\n");
-    printf("             SISTEM ANTRIAN CUCI MOBIL               \n");
-    printf("======================================================\n");
-    printf("1. Tambah Mobil\n");
-    printf("2. Daftar Antrian\n");
-    printf("3. Proses Antrian (Cuci -> Bilas -> Kering)\n");
-    printf("4. Pembatalan Antrian\n");
-    printf("5. Riwayat Mobil\n");
-    printf("6. Manajemen Kupon\n");
-    printf("7. Status Jalur Cuci\n");
-    printf("8. Rekap/Pencarian Waktu\n");
-    printf("9. Keluar Program\n");
-    printf("Pilih menu: ");
-}
+// waktu mulai simulasi
+time_t waktuMulaiSimulasi;
 
+// Inisialisasi jalur
+JalurCuci jalurCuci[TOTAL_JALUR];
+JalurCuci jalurBilas[2];
+JalurCuci jalurKering[2];
+
+// Deklarasi mutex (ada di jalur.h)
+extern pthread_mutex_t antrianVIPMutex;
+extern pthread_mutex_t antrianRegulerMutex;
+extern pthread_mutex_t jalurCuciMutex;
+extern pthread_mutex_t jalurBilasMutex;
+extern pthread_mutex_t jalurKeringMutex;
+
+extern int modePesanProses;
+
+// Fungsi utama
 int main() {
     int pilihan;
+    waktuMulaiSimulasi = time(NULL);
+    inisialisasiJalur(jalurCuci, jalurBilas, jalurKering);
+    pthread_t threadProses;
+    // Buat array pointer untuk passing ke thread
+    JalurCuci* jalurArr[3] = {jalurCuci, jalurBilas, jalurKering};
+    pthread_create(&threadProses, NULL, loopProsesAntrian, jalurArr);
     do {
-        system("cls"); // Jika tidak jalan di DEV C, ganti dengan system("clear");
-        tampilkanMenu();
+        printf("\n=== APLIKASI ANTRIAN CUCI MOBIL ===\n");
+        printf("1. Tambah Mobil\n");
+        printf("2. Tampilkan Antrian\n");
+        printf("3. Proses Antrian\n");
+        printf("4. Pembatalan Antrian\n");
+        printf("5. Riwayat Mobil\n");
+        printf("6. Manajemen Kupon\n");
+        printf("0. Keluar\n");
+        printf("Pilih: ");
         scanf("%d", &pilihan);
-        getchar(); // Untuk menghindari input enter nyangkut
+        getchar(); // Membersihkan newline
 
         switch (pilihan) {
             case 1:
-                tambahMobil(); // Input data, tentukan VIP/Reguler, enqueue ke antrian yang sesuai
-                break; // dari mobil.h
-            case 2:
-                tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
-                break; // dari antrian.h
-            case 3: {
-                Mobil m = selesaikanAntrian(); // Proses bertahap: cuci -> bilas -> kering -> riwayat
-                if (m.id != -1) {
-                    insertRiwayat(&riwayat, m);
-                    simpanRiwayatKeFile(riwayat);
-                }
+                tambahMobil(); // Pendaftaran mobil
                 break;
-            }            case 4: {
-                int idMobil;
-                printf("\nMasukkan ID mobil yang ingin dibatalkan: ");
-                scanf("%d", &idMobil);
+            case 2:
+                tampilAntrian(); // Tampilkan semua antrian
+                break;
+            case 3:
+                modePesanProses = 1;
+                prosesAntrianOtomatis(jalurCuci, jalurBilas, jalurKering, 1);
+                break;
+            case 4: {
+                int mode;
+                char keyword[50];
+
+                printf("\n=== Pembatalan Antrian ===\n");
+                printf("Cari berdasarkan:\n");
+                printf("1. Nama\n");
+                printf("2. Jenis Mobil\n");
+                printf("3. Plat Nomor\n");
+                printf("Pilih: ");
+                scanf("%d", &mode);
                 getchar(); // Consume newline
-                
-                Mobil* mobilVIP = findMobil(antrianVIP, idMobil);
-                if (mobilVIP != NULL) {
-                    batalkanAntrian(&antrianVIP, idMobil);
-                } else {
-                    Mobil* mobilReguler = findMobil(antrianReguler, idMobil);
-                    if (mobilReguler != NULL) {
-                        batalkanAntrian(&antrianReguler, idMobil);
-                    } else {
-                        printf("\nMobil dengan ID %d tidak ditemukan dalam antrian VIP maupun Reguler\n", idMobil);
-                    }
-                }
+
+                printf("Masukkan kata kunci: ");
+                fgets(keyword, sizeof(keyword), stdin);
+                keyword[strcspn(keyword, "\n")] = 0; // Hapus newline
+
+                batalkanAntrian(mode, keyword);
                 break;
             }
             case 5: {
                 int subPilihan;
                 printf("\n=== Menu Riwayat Mobil ===\n");
-                printf("1. Tampilkan Riwayat\n");
-                printf("2. Tampilkan Riwayat Terbaru\n");
-                printf("3. Cari Riwayat Mobil\n");
+                printf("1. Semua Riwayat\n");
+                printf("2. Riwayat VIP\n");
+                printf("3. Riwayat Reguler\n");
                 printf("Pilih: ");
                 scanf("%d", &subPilihan);
                 getchar();
-                if (subPilihan == 1) {
-                    printRiwayat(riwayat);
-                } else if (subPilihan == 2) {
-                    printRiwayatTerbalik(riwayat);
-                } else if (subPilihan == 3) {
-                    int mode;
-                    char keyword[50];
-                    printf("Cari berdasarkan:\n");
-                    printf("1. Nama\n");
-                    printf("2. Jenis Mobil\n");
-                    printf("3. Plat Nomor\n");
-                    printf("4. Jalur\n");
-                    printf("Pilih: ");
-                    scanf("%d", &mode);
-                    getchar();
+                int cari = 0;
+                char keyword[50];
+                printf("Cari data? (1=Ya, 0=Tidak): ");
+                scanf("%d", &cari);
+                getchar();
+                if (cari) {
                     printf("Masukkan kata kunci: ");
                     fgets(keyword, sizeof(keyword), stdin);
-                    keyword[strcspn(keyword, "\n")] = 0; // hapus newline
-                    cariRiwayatMobil(riwayat, mode, keyword);
+                    keyword[strcspn(keyword, "\n")] = 0;
+                }
+                if (subPilihan == 1) {
+                    printRiwayatFilter(riwayat, 0, cari ? keyword : NULL);
+                } else if (subPilihan == 2) {
+                    printRiwayatFilter(riwayat, 1, cari ? keyword : NULL);
+                } else if (subPilihan == 3) {
+                    printRiwayatFilter(riwayat, 2, cari ? keyword : NULL);
                 } else {
                     printf("Pilihan tidak valid!\n");
                 }
@@ -114,16 +126,15 @@ int main() {
             //     break; // dari jalur.h
             // case 8:
             //     rekapWaktu(); // Rekap/pencarian waktu (tree traversal)
-            //     break; // dari treewaktu.h
-            case 9:
+            //     break; // dari treewaktu.h   
+            case 0:
                 printf("Terima kasih!\n");
                 break;
             default:
                 printf("Pilihan tidak valid!\n");
                 break;
         }
-        system("pause");
-    } while (pilihan != 9);
+    } while (pilihan != 0);
 
     return 0;
 }
