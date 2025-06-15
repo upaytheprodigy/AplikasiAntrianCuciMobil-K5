@@ -11,6 +11,7 @@
 #include <string.h>
 #include "../header/mobil.h"
 #include "../header/antrian.h"
+#include "../header/kupon.h"
 #include <time.h>
 
 // Deklarasi antrian global (didefinisikan di main.c)
@@ -91,6 +92,12 @@ void tambahMobil() {
     printf("Plat Nomor Mobil         : ");
     fgets(m.platNomor, sizeof(m.platNomor), stdin);
     m.platNomor[strcspn(m.platNomor, "\n")] = '\0';
+
+    // Cek dan tawarkan penggunaan kupon
+    int pakaiKupon = cekDanGunakanKupon(m.platNomor);
+    if (pakaiKupon) {
+        printf("Cuci gratis menggunakan kupon!\n");
+    }
 
     printf("Jalur [VIP/Reguler]      : ");
     fgets(m.jalur, sizeof(m.jalur), stdin);
