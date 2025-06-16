@@ -5,8 +5,9 @@
 #include "../header/kupon.h"
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <windows.h>
+#define sleep(x) Sleep(1000 * (x))
 
 extern time_t waktuMulaiSimulasi;
 int modePesanProses = 0;

@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <unistd.h>
+#include <windows.h>
+#define sleep(x) Sleep(1000 * (x))
 
 // Inisialisasi antrian global (VIP & Reguler)
 extern NodeAntrian* antrianVIP;
