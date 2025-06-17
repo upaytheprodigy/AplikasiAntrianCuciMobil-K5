@@ -12,13 +12,16 @@
 extern time_t waktuMulaiSimulasi;
 int modePesanProses = 0;
 
-// Inisialisasi mutex
+// ===================== FUNGSI PEMBANTU =====================
+
+// Mutex untuk antrian dan jalur
 pthread_mutex_t antrianVIPMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t antrianRegulerMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t jalurCuciMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t jalurBilasMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t jalurKeringMutex = PTHREAD_MUTEX_INITIALIZER;
 
+// Cek tipe jalur
 int isVIP(const char* jalur) {
     return strcasecmp(jalur, "VIP") == 0;
 }
@@ -26,11 +29,13 @@ int isReguler(const char* jalur) {
     return strcasecmp(jalur, "Reguler") == 0;
 }
 
-// Inisialisasi semua jalur (cuci, bilas, kering)
+// ===================== INISIALISASI JALUR =====================
+
 void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[]) {
     for (int i = 0; i < TOTAL_JALUR; i++) {
         jalurCuci[i].sedangDigunakan = 0;
         jalurCuci[i].idJalur = i;
+        jalurCuci[i].mobilSedangDicuci.id = -1;
         if (i < 2) {
             strcpy(jalurCuci[i].tipe, "Reguler");
         } else {
@@ -40,6 +45,7 @@ void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci 
     for (int i = 0; i < 2; i++) {
         jalurBilas[i].sedangDigunakan = 0;
         jalurBilas[i].idJalur = i;
+        jalurBilas[i].mobilSedangDicuci.id = -1;
         if (i == 0) {
             strcpy(jalurBilas[i].tipe, "Reguler");
         } else {
@@ -49,6 +55,7 @@ void inisialisasiJalur(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci 
     for (int i = 0; i < 2; i++) {
         jalurKering[i].sedangDigunakan = 0;
         jalurKering[i].idJalur = i;
+        jalurKering[i].mobilSedangDicuci.id = -1;
         if (i == 0) {
             strcpy(jalurKering[i].tipe, "Reguler");
         } else {
@@ -67,6 +74,8 @@ int cariJalurKosong(JalurCuci jalur[], int jumlah, const char* tipe) {
     return -1; // Tidak ada jalur kosong
 }
 
+// ===================== PROSES UTAMA (THREAD) =====================
+
 // Fungsi thread untuk proses cuci
 void* prosesCuci(void* arg) {
     JalurCuci* jalur = (JalurCuci*)arg;
@@ -76,7 +85,8 @@ void* prosesCuci(void* arg) {
     strftime(jalur->mobilSedangDicuci.waktuMulaiCuciStr, sizeof(jalur->mobilSedangDicuci.waktuMulaiCuciStr), "%H:%M:%S", localMulai);
 
     sleep(jalur->mobilSedangDicuci.durasiCuci);
-    
+
+    // --- PINDAHKAN DULU KE ANTRIAN BILAS ---
     if (isVIP(jalur->mobilSedangDicuci.jalur)) {
         pthread_mutex_lock(&antrianVIPMutex);
         enqueue(&antrianPembilasanVIP, jalur->mobilSedangDicuci);
@@ -90,6 +100,13 @@ void* prosesCuci(void* arg) {
         if (modePesanProses)
             printf("Mobil %d (Reguler) selesai cuci, masuk antrian bilas Reguler\n", jalur->mobilSedangDicuci.id);
     }
+
+    // --- BARU RESET DATA JALUR CUCI ---
+    pthread_mutex_lock(&jalurCuciMutex);
+    jalur->sedangDigunakan = 0;
+    jalur->mobilSedangDicuci.id = -1;
+    pthread_mutex_unlock(&jalurCuciMutex);
+
     pthread_exit(NULL);
     return NULL;
 }
@@ -97,14 +114,9 @@ void* prosesCuci(void* arg) {
 // Fungsi thread untuk proses bilas
 void* prosesBilas(void* arg) {
     JalurCuci* jalur = (JalurCuci*)arg;
-    sleep(jalur->mobilSedangDicuci.durasiBilas); // Simulasi proses bilas
+    sleep(jalur->mobilSedangDicuci.durasiBilas);
 
-    // Setelah selesai bilas, pindahkan ke antrian kering
-    pthread_mutex_lock(&jalurBilasMutex);
-    jalur->sedangDigunakan = 0; // Jalur kosong
-    pthread_mutex_unlock(&jalurBilasMutex);
-
-    // Enqueue ke antrian kering sesuai tipe
+    // --- PINDAHKAN DULU KE ANTRIAN KERING ---
     if (isVIP(jalur->mobilSedangDicuci.jalur)) {
         pthread_mutex_lock(&antrianVIPMutex);
         enqueue(&antrianPengeringanVIP, jalur->mobilSedangDicuci);
@@ -118,6 +130,12 @@ void* prosesBilas(void* arg) {
         if (modePesanProses)
             printf("Mobil %d (Reguler) selesai bilas, masuk antrian kering Reguler\n", jalur->mobilSedangDicuci.id);
     }
+
+    // --- BARU RESET DATA JALUR BILAS ---
+    pthread_mutex_lock(&jalurBilasMutex);
+    jalur->sedangDigunakan = 0;
+    jalur->mobilSedangDicuci.id = -1;
+    pthread_mutex_unlock(&jalurBilasMutex);
 
     pthread_exit(NULL);
     return NULL;
@@ -134,10 +152,6 @@ void* prosesKering(void* arg) {
     struct tm *localSelesai = localtime(&selesai);
     strftime(jalur->mobilSedangDicuci.waktuSelesaiStr, sizeof(jalur->mobilSedangDicuci.waktuSelesaiStr), "%H:%M:%S", localSelesai);
 
-    pthread_mutex_lock(&jalurKeringMutex);
-    jalur->sedangDigunakan = 0;
-    pthread_mutex_unlock(&jalurKeringMutex);
-
     insertRiwayat(&riwayat, jalur->mobilSedangDicuci);
 
     tambahKuponPlat(
@@ -148,6 +162,13 @@ void* prosesKering(void* arg) {
 
     if (modePesanProses)
         printf("Mobil %d selesai dikeringkan, masuk riwayat\n", jalur->mobilSedangDicuci.id);
+
+    // --- RESET DATA JALUR KERING PALING AKHIR ---
+    pthread_mutex_lock(&jalurKeringMutex);
+    jalur->sedangDigunakan = 0;
+    jalur->mobilSedangDicuci.id = -1;
+    pthread_mutex_unlock(&jalurKeringMutex);
+
     pthread_exit(NULL);
     return NULL;
 }

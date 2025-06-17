@@ -20,8 +20,9 @@ typedef struct {
     time_t waktuSelesaiEpoch;
     int durasiCuci, durasiBilas, durasiKering; // durasi total
     int statusProses;       // 0 = antri, 1 = cuci, 2 = bilas, 3 = selesai
-} Mobil; // Struktur data untuk menyimpan informasi mobil
+} Mobil;
 
-void tambahMobil(); // Fungsi untuk input dan proses data mobil
+// Fungsi utama pendaftaran mobil
+void tambahMobil();
 
 #endif

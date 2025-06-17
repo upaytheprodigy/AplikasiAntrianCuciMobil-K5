@@ -14,6 +14,12 @@ void pushPembatalan(NodePembatalan** top, Mobil data) {
         printf("\nMemory allocation failed!\n");
         return;
     }
+      // Cek status proses mobil
+    if (data.statusProses > 0) {
+        printf("\nMaaf, mobil dengan ID %d tidak dapat dibatalkan karena sudah dalam proses pencucian!\n", data.id);
+        free(newNode);
+        return;
+    }
     
     // Copy data mobil ke node baru
     newNode->data = data;
