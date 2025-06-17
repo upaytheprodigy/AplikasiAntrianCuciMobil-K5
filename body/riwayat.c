@@ -3,8 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-int jumlahDataBaruRiwayat = 0;
+extern int jumlahDataBaruRiwayat;
+extern TreeWaktu* rootTreeWaktu;
+
+// ===================== FUNGSI PEMBANTU =====================
+
+// Fungsi sederhana untuk parsing "HH:MM:SS" ke struct tm
+void parseTime(const char* waktuStr, struct tm* waktu) {
+    int h, m, s;
+    sscanf(waktuStr, "%d:%d:%d", &h, &m, &s);
+    waktu->tm_hour = h;
+    waktu->tm_min = m;
+    waktu->tm_sec = s;
+}
+
+// ===================== FUNGSI UTAMA =====================
 
 // Fungsi insert ke riwayat (doubly linked list, di akhir)
 void insertRiwayat(NodeRiwayat** head, Mobil data) {
@@ -24,29 +39,39 @@ void insertRiwayat(NodeRiwayat** head, Mobil data) {
     }
 
     jumlahDataBaruRiwayat++;
-    if (jumlahDataBaruRiwayat >= 2) {
+    if (jumlahDataBaruRiwayat >= 10) {
         simpanRiwayatKeFile(*head);
         jumlahDataBaruRiwayat = 0;
     }
     rootTreeWaktu = insertTreeWaktu(rootTreeWaktu, data, data.waktuSelesaiEpoch);
 }
 
+// ===================== SIMPAN RIWAYAT KE FILE =====================
+
 void simpanRiwayatKeFile(NodeRiwayat* head) {
-    FILE* file = fopen("riwayat/riwayat.txt", "w"); // mode tulis ulang agar tabel selalu rapi
+    time_t now = time(NULL);
+    struct tm* t = localtime(&now);
+    char filename[100];
+    strftime(filename, sizeof(filename), "riwayat/riwayat-%Y%m%d.txt", t);
+
+    FILE* file = fopen(filename, "w");
     if (!file) {
-        printf("Gagal membuka file riwayat/riwayat.txt\n");
+        printf("Gagal membuka file %s\n", filename);
         return;
     }
 
     // Tabel VIP
-    fprintf(file, "====================================================================================================\n");
+    fprintf(file, "==================== RIWAYAT VIP ====================\n");
     fprintf(file, "| %-4s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
         "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
-    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
+    fprintf(file, "-------------------------------------------------------------------------------\n");
     NodeRiwayat* temp = head;
     int adaVIP = 0;
     while (temp != NULL) {
         if (strcasecmp(temp->data.jalur, "VIP") == 0) {
+            // Cek tanggal sama dengan hari ini (bisa ditambah validasi jika ingin sortir per hari)
+            struct tm waktuSelesai;
+            parseTime(temp->data.waktuSelesaiStr, &waktuSelesai);
             fprintf(file, "| %-4d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
                 temp->data.id,
                 temp->data.nama,
@@ -62,19 +87,21 @@ void simpanRiwayatKeFile(NodeRiwayat* head) {
         temp = temp->next;
     }
     if (!adaVIP) {
-        fprintf(file, "| %-94s |\n", "Belum ada riwayat VIP.");
+        fprintf(file, "| %-94s |\n", "Belum ada riwayat VIP hari ini.");
     }
-    fprintf(file, "====================================================================================================\n\n");
+    fprintf(file, "===============================================================================\n\n");
 
     // Tabel Reguler
-    fprintf(file, "====================================================================================================\n");
+    fprintf(file, "==================== RIWAYAT REGULER ====================\n");
     fprintf(file, "| %-4s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
         "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
-    fprintf(file, "----------------------------------------------------------------------------------------------------\n");
+    fprintf(file, "-------------------------------------------------------------------------------\n");
     temp = head;
     int adaReguler = 0;
     while (temp != NULL) {
         if (strcasecmp(temp->data.jalur, "Reguler") == 0) {
+            struct tm waktuSelesai;
+            parseTime(temp->data.waktuSelesaiStr, &waktuSelesai);
             fprintf(file, "| %-4d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
                 temp->data.id,
                 temp->data.nama,
@@ -90,55 +117,34 @@ void simpanRiwayatKeFile(NodeRiwayat* head) {
         temp = temp->next;
     }
     if (!adaReguler) {
-        fprintf(file, "| %-94s |\n", "Belum ada riwayat Reguler.");
+        fprintf(file, "| %-94s |\n", "Belum ada riwayat Reguler hari ini.");
     }
-    fprintf(file, "====================================================================================================\n");
+    fprintf(file, "===============================================================================\n");
 
     fclose(file);
 }
 
-void printRiwayatFilter(NodeRiwayat* head, int mode, const char* keyword) {
-    printf("\n====================================================================================================\n");
-    printf("| %-5s | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
-    "ID", "Nama", "Jenis", "Plat", "Masuk", "Mulai", "Estimasi", "Selesai");
-    printf("----------------------------------------------------------------------------------------------------\n");
-    if (head == NULL) {
-        printf("| %-94s |\n", "Belum ada riwayat.");
-        printf("====================================================================================================\n");
+// ===================== TAMPILKAN RIWAYAT BERDASARKAN TANGGAL =====================
+
+void tampilkanRiwayatTanggal() {
+    int tgl, bln, thn;
+    printf("Masukkan tanggal (dd mm yyyy): ");
+    scanf("%d %d %d", &tgl, &bln, &thn);
+    getchar();
+
+    char filename[100];
+    snprintf(filename, sizeof(filename), "riwayat/riwayat-%04d%02d%02d.txt", thn, bln, tgl);
+
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("File riwayat untuk tanggal %02d-%02d-%04d tidak ditemukan.\n", tgl, bln, thn);
         return;
     }
-    NodeRiwayat* temp = head;
-    int found = 0;
-    char masuk[10], mulai[10], estimasi[10], selesai[10];
-    while (temp != NULL) {
-        int cocok = 1;
-        if (mode == 1 && strcasecmp(temp->data.jalur, "VIP") != 0) cocok = 0;
-        if (mode == 2 && strcasecmp(temp->data.jalur, "Reguler") != 0) cocok = 0;
-        if (keyword && strlen(keyword) > 0) {
-            if (!strstr(temp->data.nama, keyword) &&
-                !strstr(temp->data.jenisMobil, keyword) &&
-                !strstr(temp->data.platNomor, keyword) &&
-                !strstr(temp->data.jalur, keyword)) {
-                cocok = 0;
-            }
-        }
-        if (cocok) {
-            printf("| %-5d | %-20s | %-8s | %-10s | %-8s | %-8s | %-8s | %-8s |\n",
-                temp->data.id,
-                temp->data.nama,
-                temp->data.jenisMobil,
-                temp->data.platNomor,
-                temp->data.waktuDatangStr,
-                temp->data.waktuMulaiCuciStr,
-                temp->data.estimasiSelesaiStr,
-                temp->data.waktuSelesaiStr
-            );
-            found = 1;
-        }
-        temp = temp->next;
+
+    // Baca isi file dan tampilkan ke layar
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        printf("%s", line);
     }
-    if (!found) {
-        printf("| %-94s |\n", "Data tidak ditemukan.");
-    }
-    printf("====================================================================================================\n");
+    fclose(file);
 }

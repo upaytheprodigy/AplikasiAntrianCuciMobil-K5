@@ -3,6 +3,7 @@
 #include "../header/antrian.h"
 #include "../header/riwayat.h"
 #include "../header/kupon.h"
+#include "../header/treewaktu.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +11,7 @@
 #define sleep(x) Sleep(1000 * (x))
 
 extern time_t waktuMulaiSimulasi;
+extern TreeWaktu* rootTreeWaktu;
 int modePesanProses = 0;
 
 // ===================== FUNGSI PEMBANTU =====================
@@ -153,6 +155,12 @@ void* prosesKering(void* arg) {
     strftime(jalur->mobilSedangDicuci.waktuSelesaiStr, sizeof(jalur->mobilSedangDicuci.waktuSelesaiStr), "%H:%M:%S", localSelesai);
 
     insertRiwayat(&riwayat, jalur->mobilSedangDicuci);
+
+    rootTreeWaktu = insertTreeWaktu(
+        rootTreeWaktu,
+        jalur->mobilSedangDicuci,
+        jalur->mobilSedangDicuci.waktuSelesaiEpoch
+    );
 
     tambahKuponPlat(
         jalur->mobilSedangDicuci.platNomor,

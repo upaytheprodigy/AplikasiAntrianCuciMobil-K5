@@ -105,12 +105,6 @@ void tambahMobil() {
         printf("Cuci gratis menggunakan kupon!\n");
     }
 
-    // Cek dan tawarkan penggunaan kupon
-    int pakaiKupon = cekDanGunakanKupon(m.platNomor);
-    if (pakaiKupon) {
-        printf("Cuci gratis menggunakan kupon!\n");
-    }
-
     printf("Jalur [VIP/Reguler]      : ");
     fgets(m.jalur, sizeof(m.jalur), stdin);
     m.jalur[strcspn(m.jalur, "\n")] = '\0';

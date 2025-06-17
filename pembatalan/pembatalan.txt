@@ -1,0 +1,6 @@
+==================== PEMBATALAN VIP ====================
+ID: 5 | Nama: Sari Dewi | Plat: F 5678 YY | Jenis: besar | Jalur: VIP | Waktu: 11:00:00 Tuesday, 17-06-2025
+
+==================== PEMBATALAN REGULER ====================
+ID: 6 | Nama: Andi Wijaya | Plat: B 4321 ZZ | Jenis: sedang | Jalur: Reguler | Waktu: 12:15:00 Tuesday, 17-06-2025
+ID: 7 | Nama: Budi Santoso | Plat: D 1234 XX | Jenis: kecil | Jalur: Reguler | Waktu: 13:00:00 Tuesday, 17-06-2025
