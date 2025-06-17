@@ -2,6 +2,7 @@
 #include "../header/mobil.h"
 #include "../header/antrian.h"
 #include "../header/riwayat.h"
+#include "../header/kupon.h"
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -137,9 +138,15 @@ void* prosesKering(void* arg) {
     pthread_mutex_unlock(&jalurKeringMutex);
 
     insertRiwayat(&riwayat, jalur->mobilSedangDicuci);
+
+    tambahKuponPlat(
+        jalur->mobilSedangDicuci.platNomor,
+        jalur->mobilSedangDicuci.jenisMobil,
+        jalur->mobilSedangDicuci.waktuSelesaiStr
+    );
+
     if (modePesanProses)
         printf("Mobil %d selesai dikeringkan, masuk riwayat\n", jalur->mobilSedangDicuci.id);
-
     pthread_exit(NULL);
     return NULL;
 }

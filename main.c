@@ -7,6 +7,7 @@
 #include "header/riwayat.h"
 #include "header/jalur.h"
 #include "header/treewaktu.h"
+#include "header/kupon.h"
 
 // Inisialisasi antrian global (VIP & Reguler)
 NodeAntrian* antrianVIP = NULL;
@@ -128,9 +129,9 @@ int main() {
                 } while (subPilihan != 0);
                 break;
             }
-            // case 6:
-            //     kelolaKupon(); // Manajemen kupon pelanggan
-            //     break; // dari kupon.h
+            case 6:
+                menuKupon();
+                break;
             case 7: {
                 int sub;
                 do {
