@@ -1,41 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../header/pembatalan.h"
 
 // Global stack pointer for pembatalan
 NodePembatalan* stackPembatalan = NULL;
 
-// Push data mobil ke stack pembatalan
+// ===================== PUSH (Tambah ke Stack) =====================
 void pushPembatalan(NodePembatalan** top, Mobil data) {
-    // Alokasi node baru
     NodePembatalan* newNode = (NodePembatalan*)malloc(sizeof(NodePembatalan));
-    
     if (newNode == NULL) {
         printf("\nMemory allocation failed!\n");
         return;
     }
-      // Cek status proses mobil
-    if (data.statusProses > 0) {
-        printf("\nMaaf, mobil dengan ID %d tidak dapat dibatalkan karena sudah dalam proses pencucian!\n", data.id);
-        free(newNode);
-        return;
-    }
-    
-    // Copy data mobil ke node baru
     newNode->data = data;
-    
-    // Set next node baru ke top sebelumnya
     newNode->next = *top;
-    
-    // Update top ke node baru
     *top = newNode;
-    
     printf("\nMobil dengan ID %d berhasil disimpan ke dalam daftar pembatalan\n", data.id);
 }
 
-// Pop data mobil dari stack pembatalan
+// ===================== POP (Ambil dari Stack) =====================
 Mobil popPembatalan(NodePembatalan** top) {
-    // Inisialisasi mobil kosong dengan nilai default
     Mobil emptyMobil = {
         .id = -1,
         .nama = "",
@@ -49,39 +34,26 @@ Mobil popPembatalan(NodePembatalan** top) {
         .durasiKering = 0,
         .statusProses = 0
     };
-    
-    // Cek apakah stack kosong
     if (*top == NULL) {
         printf("\nDaftar pembatalan kosong!\n");
         return emptyMobil;
     }
-    
-    // Simpan node top sementara
     NodePembatalan* temp = *top;
-    
-    // Simpan data mobil yang akan di-pop
     Mobil poppedMobil = temp->data;
-    
-    // Update top ke next node
     *top = temp->next;
-    
-    // Bebaskan memory node yang di-pop
     free(temp);
-    
     return poppedMobil;
 }
 
-// Print semua data dalam stack pembatalan
+// ===================== PRINT STACK =====================
 void printStackPembatalan(NodePembatalan* top) {
     if (top == NULL) {
         printf("\nDaftar pembatalan kosong!\n");
         return;
     }
-    
     printf("\n============= DAFTAR MOBIL YANG DIBATALKAN =============\n");
     printf("ID\tNama\t\tPlat\t\tJenis\tJalur\n");
     printf("-----------------------------------------------------\n");
-    
     NodePembatalan* current = top;
     while (current != NULL) {
         printf("%d\t%-15s%-15s%-10s%s\n", 
@@ -93,4 +65,57 @@ void printStackPembatalan(NodePembatalan* top) {
         current = current->next;
     }
     printf("-----------------------------------------------------\n");
+}
+
+// ===================== SIMPAN KE FILE =====================
+void simpanPembatalanKeFile(NodePembatalan* top) {
+    FILE* file = fopen("pembatalan/pembatalan.txt", "w");
+    if (!file) {
+        printf("Gagal membuka file pembatalan/pembatalan.txt\n");
+        return;
+    }
+    // VIP
+    fprintf(file, "==================== PEMBATALAN VIP ====================\n");
+    NodePembatalan* curr = top;
+    int adaVIP = 0;
+    while (curr) {
+        if (strcasecmp(curr->data.jalur, "VIP") == 0) {
+            fprintf(file, "ID: %d | Nama: %s | Plat: %s | Jenis: %s | Jalur: %s | Waktu: %s\n",
+                curr->data.id, curr->data.nama, curr->data.platNomor, curr->data.jenisMobil, curr->data.jalur, curr->data.waktuDatangStr);
+            adaVIP = 1;
+        }
+        curr = curr->next;
+    }
+    if (!adaVIP) fprintf(file, "Tidak ada pembatalan VIP.\n");
+
+    // Reguler
+    fprintf(file, "\n==================== PEMBATALAN REGULER ====================\n");
+    curr = top;
+    int adaReg = 0;
+    while (curr) {
+        if (strcasecmp(curr->data.jalur, "Reguler") == 0) {
+            fprintf(file, "ID: %d | Nama: %s | Plat: %s | Jenis: %s | Jalur: %s | Waktu: %s\n",
+                curr->data.id, curr->data.nama, curr->data.platNomor, curr->data.jenisMobil, curr->data.jalur, curr->data.waktuDatangStr);
+            adaReg = 1;
+        }
+        curr = curr->next;
+    }
+    if (!adaReg) fprintf(file, "Tidak ada pembatalan Reguler.\n");
+    fclose(file);
+}
+
+// ===================== BACA FILE PEMBATALAN =====================
+void openPembatalanFile() {
+    FILE* file = fopen("pembatalan/pembatalan.txt", "r");
+    if (!file) {
+        printf("File pembatalan/pembatalan.txt tidak ditemukan.\n");
+        return;
+    }
+    char line[256];
+    printf("\n");
+    while (fgets(line, sizeof(line), file)) {
+        printf("%s", line);
+    }
+    fclose(file);
+    printf("\n");
 }

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-// Insert data mobil ke BST berdasarkan waktu selesai
+// ===================== INSERT TREE WAKTU =====================
 TreeWaktu* insertTreeWaktu(TreeWaktu* root, Mobil data, int waktuSelesai) {
     if (root == NULL) {
         TreeWaktu* node = (TreeWaktu*)malloc(sizeof(TreeWaktu));
@@ -20,22 +20,7 @@ TreeWaktu* insertTreeWaktu(TreeWaktu* root, Mobil data, int waktuSelesai) {
     return root;
 }
 
-void tampilkanRekapPerJam(TreeWaktu* root) {
-    printRekapPerJam(root);
-}
-
-void tampilkanRekapRentangWaktu(TreeWaktu* root, int jamAwal, int menitAwal, int detikAwal, int jamAkhir, int menitAkhir, int detikAkhir) {
-    time_t now = time(NULL);
-    struct tm tAwal = *localtime(&now);
-    struct tm tAkhir = *localtime(&now);
-    tAwal.tm_hour = jamAwal; tAwal.tm_min = menitAwal; tAwal.tm_sec = detikAwal;
-    tAkhir.tm_hour = jamAkhir; tAkhir.tm_min = menitAkhir; tAkhir.tm_sec = detikAkhir;
-    time_t waktuAwal = mktime(&tAwal);
-    time_t waktuAkhir = mktime(&tAkhir);
-    printMobilDalamRentang(root, waktuAwal, waktuAkhir);
-}
-
-// Rekap jumlah mobil dalam rentang waktu tertentu (total, VIP, Reguler)
+// ===================== REKAP WAKTU (RENTANG) =====================
 void rekapWaktu(TreeWaktu* root, int waktuAwal, int waktuAkhir, int* total, int* vip, int* reguler) {
     if (!root) return;
     if (root->waktuSelesai >= waktuAwal)
@@ -49,7 +34,7 @@ void rekapWaktu(TreeWaktu* root, int waktuAwal, int waktuAkhir, int* total, int*
         rekapWaktu(root->right, waktuAwal, waktuAkhir, total, vip, reguler);
 }
 
-// Rekap per jam (berapa mobil selesai per jam, VIP/Reguler)
+// ===================== REKAP PER JAM =====================
 void rekapPerJam(TreeWaktu* root, int jam[24], int vip[24], int reguler[24]) {
     if (!root) return;
     struct tm* waktu = localtime((time_t*)&root->waktuSelesai);
@@ -61,7 +46,7 @@ void rekapPerJam(TreeWaktu* root, int jam[24], int vip[24], int reguler[24]) {
     rekapPerJam(root->right, jam, vip, reguler);
 }
 
-// Print rekap per jam
+// ===================== PRINT REKAP PER JAM =====================
 void printRekapPerJam(TreeWaktu* root) {
     int jam[24] = {0}, vip[24] = {0}, reguler[24] = {0};
     rekapPerJam(root, jam, vip, reguler);
@@ -74,7 +59,7 @@ void printRekapPerJam(TreeWaktu* root) {
     printf("=====================================================\n");
 }
 
-// Print semua data mobil dalam rentang waktu tertentu
+// ===================== PRINT MOBIL DALAM RENTANG WAKTU =====================
 void printMobilDalamRentang(TreeWaktu* root, int waktuAwal, int waktuAkhir) {
     static int headerPrinted = 0;
     if (!headerPrinted) {
@@ -105,4 +90,106 @@ void printMobilDalamRentang(TreeWaktu* root, int waktuAwal, int waktuAkhir) {
         printf("====================================================================================================\n");
         headerPrinted = 0;
     }
+}
+
+// ===================== TAMPILKAN REKAP PER JAM (WRAPPER) =====================
+void tampilkanRekapPerJam(TreeWaktu* root) {
+    printRekapPerJam(root);
+}
+
+// ===================== TAMPILKAN REKAP RENTANG WAKTU (WRAPPER) =====================
+void tampilkanRekapRentangWaktu(TreeWaktu* root, int jamAwal, int menitAwal, int detikAwal, int jamAkhir, int menitAkhir, int detikAkhir) {
+    time_t now = time(NULL);
+    struct tm tAwal = *localtime(&now);
+    struct tm tAkhir = *localtime(&now);
+    tAwal.tm_hour = jamAwal; tAwal.tm_min = menitAwal; tAwal.tm_sec = detikAwal;
+    tAkhir.tm_hour = jamAkhir; tAkhir.tm_min = menitAkhir; tAkhir.tm_sec = detikAkhir;
+    time_t waktuAwal = mktime(&tAwal);
+    time_t waktuAkhir = mktime(&tAkhir);
+    printMobilDalamRentang(root, waktuAwal, waktuAkhir);
+}
+
+void simpanTreeWaktuKeFile(TreeWaktu* root, FILE* file) {
+    if (!root) return;
+    // Simpan preorder
+    Mobil* m = &root->data;
+    fprintf(file, "treewaktu/treewaktu-%d;%s;%s;%s;%s;%d;%s\n",
+        m->id, m->nama, m->jenisMobil, m->platNomor, m->jalur,
+        root->waktuSelesai, m->waktuSelesaiStr
+        // tambahkan field lain sesuai kebutuhan
+    );
+    simpanTreeWaktuKeFile(root->left, file);
+    simpanTreeWaktuKeFile(root->right, file);
+}
+
+void simpanTreeWaktu(TreeWaktu* root, const char* filename) {
+    FILE* file = fopen(filename, "w");
+    if (!file) return;
+    simpanTreeWaktuKeFile(root, file);
+    fclose(file);
+}
+
+TreeWaktu* loadTreeWaktu(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) return NULL;
+    TreeWaktu* root = NULL;
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        Mobil m;
+        int waktuSelesai;
+        sscanf(line, "%d;%49[^;];%9[^;];%19[^;];%9[^;];%d;%19[^\n]",
+            &m.id, m.nama, m.jenisMobil, m.platNomor, m.jalur,
+            &waktuSelesai, m.waktuSelesaiStr
+        );
+        // parsing field lain jika ada
+        root = insertTreeWaktu(root, m, waktuSelesai);
+    }
+    fclose(file);
+    return root;
+}
+
+void tampilkanRekapPerHari(TreeWaktu* root) {
+    int tgl, bln, thn;
+    printf("Masukkan tanggal (dd mm yyyy): ");
+    scanf("%d %d %d", &tgl, &bln, &thn);
+    getchar();
+
+    struct tm tAwal = {0}, tAkhir = {0};
+    tAwal.tm_mday = tgl;
+    tAwal.tm_mon = bln - 1;
+    tAwal.tm_year = thn - 1900;
+    tAwal.tm_hour = 0; tAwal.tm_min = 0; tAwal.tm_sec = 0;
+    tAkhir = tAwal;
+    tAkhir.tm_hour = 23; tAkhir.tm_min = 59; tAkhir.tm_sec = 59;
+
+    time_t waktuAwal = mktime(&tAwal);
+    time_t waktuAkhir = mktime(&tAkhir);
+
+    printMobilDalamRentang(root, waktuAwal, waktuAkhir);
+}
+
+void tampilkanRekapPerJamRentang(TreeWaktu* root) {
+    int tgl, bln, thn, jamAwal, menitAwal, detikAwal, jamAkhir, menitAkhir, detikAkhir;
+    printf("Masukkan tanggal (dd mm yyyy): ");
+    scanf("%d %d %d", &tgl, &bln, &thn);
+    printf("Masukkan jam awal (hh mm ss): ");
+    scanf("%d %d %d", &jamAwal, &menitAwal, &detikAwal);
+    printf("Masukkan jam akhir (hh mm ss): ");
+    scanf("%d %d %d", &jamAkhir, &menitAkhir, &detikAkhir);
+    getchar();
+
+    struct tm tAwal = {0}, tAkhir = {0};
+    tAwal.tm_mday = tgl;
+    tAwal.tm_mon = bln - 1;
+    tAwal.tm_year = thn - 1900;
+    tAwal.tm_hour = jamAwal; tAwal.tm_min = menitAwal; tAwal.tm_sec = detikAwal;
+    tAkhir.tm_mday = tgl;
+    tAkhir.tm_mon = bln - 1;
+    tAkhir.tm_year = thn - 1900;
+    tAkhir.tm_hour = jamAkhir; tAkhir.tm_min = menitAkhir; tAkhir.tm_sec = detikAkhir;
+
+    time_t waktuAwal = mktime(&tAwal);
+    time_t waktuAkhir = mktime(&tAkhir);
+
+    printMobilDalamRentang(root, waktuAwal, waktuAkhir);
 }
