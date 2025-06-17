@@ -8,23 +8,20 @@ typedef struct {
     char platNomor[20];
     char jenisMobil[10];
     int jumlahKupon;
-    char waktuCuci[MAX_RIWAYAT_KUPON][20]; // waktu cuci (format "HH:MM:SS")
+    char waktuCuci[MAX_RIWAYAT_KUPON][20];
     int riwayatCount;
 } DataKupon;
 
 extern DataKupon dataKupon[MAX_KUPON];
 extern int jumlahDataKupon;
 
-// Tambah kupon berdasarkan plat nomor
-void tambahKuponPlat(const char* platNomor, const char* jenisMobil, const char* waktuCuci);
-
-// Cari index kupon berdasarkan plat nomor
+// Fungsi kupon
+void normalisasiPlat(const char* src, char* dst);
 int cariKuponPlat(const char* platNomor);
-
-// Cek dan tawarkan penggunaan kupon saat registrasi
+void loadKuponDariFile();
+void tambahKuponPlat(const char* platNomor, const char* jenisMobil, const char* waktuCuci);
 int cekDanGunakanKupon(const char* platNomor);
-
-// Tampilkan menu data kupon
+void simpanKuponKeFile();
 void menuKupon();
 
 #endif
