@@ -1,18 +1,10 @@
-//===============================================================================================================
-// Program dibuat oleh: Rina Permata Dewi
-// NIM                : 241511061
-// Deskripsi File     : Modul pendaftaran mobil, menentukan durasi cuci otomatis berdasarkan jenis mobil,
-//                      menghitung waktu kedatangan dari jam sistem, serta menampilkan estimasi selesai
-//                      dalam format jam:menit (hh.mm). Data mobil dimasukkan ke antrian sesuai jalur.
-//===============================================================================================================
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "../header/mobil.h"
 #include "../header/antrian.h"
 #include "../header/kupon.h"
-#include <time.h>
 
 // Deklarasi antrian global (didefinisikan di main.c)
 extern NodeAntrian* antrianVIP;
@@ -22,42 +14,7 @@ extern time_t waktuMulaiSimulasi;
 // ID otomatis
 int idCounter = 1;
 
-// Fungsi menghitung durasi total berdasarkan jenis mobil
-int hitungDurasiTotal(const char* jenisMobil) {
-    if (strcmp(jenisMobil, "Kecil") == 0 || strcmp(jenisMobil, "kecil") == 0)
-        return 45;
-    else if (strcmp(jenisMobil, "Sedang") == 0 || strcmp(jenisMobil, "sedang") == 0)
-        return 60;
-    else if (strcmp(jenisMobil, "Besar") == 0 || strcmp(jenisMobil, "besar") == 0)
-        return 90;
-    return 0;
-}
-
-int estimasiSelesaiTerakhir(NodeAntrian* front, int waktuDatang, int durasiTotal) {
-    int waktuSelesai = waktuDatang;
-    NodeAntrian* temp = front;
-    while (temp != NULL) {
-        int selesaiMobil = temp->data.estimasiSelesai;
-        if (selesaiMobil > waktuSelesai)
-            waktuSelesai = selesaiMobil;
-        temp = temp->next;
-    }
-    return waktuSelesai;
-}
-
-// Fungsi bantu: mengubah menit sejak 09.00 menjadi format hh.mm (misal 10.30)
-// void formatWaktu(int menitSejak0900, char* output) {
-//     int totalMenit = 9 * 60 + menitSejak0900;
-//     int jam = totalMenit / 60;
-//     int menit = totalMenit % 60;
-//     sprintf(output, "%02d.%02d", jam, menit);
-// }
-void formatWaktu(int detikSejakMulai, char* output) { //
-    int jam = detikSejakMulai / 3600;
-    int menit = (detikSejakMulai % 3600) / 60;
-    int detik = detikSejakMulai % 60;
-    sprintf(output, "%02d:%02d:%02d", jam, menit, detik);
-}
+// ===================== FUNGSI PEMBANTU =====================
 
 // Fungsi pembatas visual
 void garis() {
@@ -71,7 +28,56 @@ void headerForm() {
     garis();
 }
 
-// Fungsi utama: tambah mobil ke antrian
+// Fungsi menghitung durasi total berdasarkan jenis mobil (simulasi)
+int hitungDurasiTotal(const char* jenisMobil) {
+    if (strcmp(jenisMobil, "Kecil") == 0 || strcmp(jenisMobil, "kecil") == 0)
+        return 45;
+    else if (strcmp(jenisMobil, "Sedang") == 0 || strcmp(jenisMobil, "sedang") == 0)
+        return 60;
+    else if (strcmp(jenisMobil, "Besar") == 0 || strcmp(jenisMobil, "besar") == 0)
+        return 90;
+    return 0;
+}
+
+// Fungsi untuk menghitung durasi total (spesifikasi NORMAL)
+// int hitungDurasiTotal(const char* jenisMobil, int isVIP) {
+//     int menit = 0;
+//     if (strcasecmp(jenisMobil, "Kecil") == 0)
+//         menit = 45;
+//     else if (strcasecmp(jenisMobil, "Sedang") == 0)
+//         menit = 60;
+//     else if (strcasecmp(jenisMobil, "Besar") == 0)
+//         menit = 90;
+//     int detik = menit * 60;
+//     if (isVIP) {
+//         detik = detik * 80 / 100; // 20% lebih cepat
+//     }
+//     return detik;
+// }
+
+// Fungsi mencari estimasi selesai terakhir di antrian
+int estimasiSelesaiTerakhir(NodeAntrian* front, int waktuDatang, int durasiTotal) {
+    int waktuSelesai = waktuDatang;
+    NodeAntrian* temp = front;
+    while (temp != NULL) {
+        int selesaiMobil = temp->data.estimasiSelesai;
+        if (selesaiMobil > waktuSelesai)
+            waktuSelesai = selesaiMobil;
+        temp = temp->next;
+    }
+    return waktuSelesai;
+}
+
+// Fungsi format waktu (detik ke HH:MM:SS)
+void formatWaktu(int detikSejakMulai, char* output) {
+    int jam = detikSejakMulai / 3600;
+    int menit = (detikSejakMulai % 3600) / 60;
+    int detik = detikSejakMulai % 60;
+    sprintf(output, "%02d:%02d:%02d", jam, menit, detik);
+}
+
+// ===================== FUNGSI UTAMA PENDAFTARAN MOBIL =====================
+
 void tambahMobil() {
     Mobil m;
     m.id = idCounter++;
@@ -89,15 +95,15 @@ void tambahMobil() {
     fgets(m.jenisMobil, sizeof(m.jenisMobil), stdin);
     m.jenisMobil[strcspn(m.jenisMobil, "\n")] = '\0';
 
-    // Validasi jenis mobil dan hitung durasi
-    if (hitungDurasiTotal(m.jenisMobil) == 0) {
-        printf("\nJenis mobil tidak dikenali. Silakan coba lagi.\n");
-        return;
-    }
-
     printf("Plat Nomor Mobil         : ");
     fgets(m.platNomor, sizeof(m.platNomor), stdin);
-    m.platNomor[strcspn(m.platNomor, "\n")] = '\0';
+    m.platNomor[strcspn(m.platNomor, "\n")] = 0;
+
+    // Cek dan tawarkan penggunaan kupon
+    int pakaiKupon = cekDanGunakanKupon(m.platNomor);
+    if (pakaiKupon) {
+        printf("Cuci gratis menggunakan kupon!\n");
+    }
 
     // Cek dan tawarkan penggunaan kupon
     int pakaiKupon = cekDanGunakanKupon(m.platNomor);
@@ -110,34 +116,36 @@ void tambahMobil() {
     m.jalur[strcspn(m.jalur, "\n")] = '\0';
 
     // Validasi jalur
-    int isVIP = (strcmp(m.jalur, "VIP") == 0 || strcmp(m.jalur, "vip") == 0);
-    int isReguler = (strcmp(m.jalur, "Reguler") == 0 || strcmp(m.jalur, "reguler") == 0);
+    int isVIP = (strcasecmp(m.jalur, "VIP") == 0);
+    int isReguler = (strcasecmp(m.jalur, "Reguler") == 0);
 
     if (!isVIP && !isReguler) {
         printf("\nJalur tidak valid. Silakan coba lagi.\n");
         return;
     }
 
-    // Hitung waktu datang otomatis
-    time_t now = time(NULL);
-    struct tm *local = localtime(&now);
-    strftime(m.waktuDatangStr, sizeof(m.waktuDatangStr), "%H:%M:%S", local);
-    // int jam = local->tm_hour;
-    // int menit = local->tm_min;
-    // m.waktuDatang = (jam - 9) * 60 + menit;
-
-    // if (m.waktuDatang < 0 || m.waktuDatang > 1200) {
-    //     printf("\nWaktu sekarang di luar jam operasional (09.00 - 16.00).\n");
+    // Validasi jenis mobil (aktifkan jika ingin mode normal)
+    // int durasiTotal = hitungDurasiTotal(m.jenisMobil, isVIP);
+    // if (durasiTotal == 0) {
+    //     printf("\nJenis mobil tidak dikenali. Silakan coba lagi.\n");
     //     return;
     // }
 
-    // Hitung durasi berdasarkan persentase dari total durasi
-    // m.durasiCuci = durasiTotal * 0.5;
-    // m.durasiBilas = durasiTotal * 0.3;
-    // m.durasiKering = durasiTotal * 0.2;
-    m.durasiCuci = 5;    // 5 detik untuk cuci
-    m.durasiBilas = 3;   // 3 detik untuk bilas
-    m.durasiKering = 2;  // 2 detik untuk kering
+    // Hitung waktu datang otomatis (detik sejak simulasi mulai)
+    time_t now = time(NULL);
+    m.waktuDatang = (int)(now - waktuMulaiSimulasi);
+    struct tm *local = localtime(&now);
+    strftime(m.waktuDatangStr, sizeof(m.waktuDatangStr), "%H:%M:%S", local);
+
+    // Pembagian durasi proses (aktifkan jika ingin mode normal)
+    // m.durasiCuci   = durasiTotal * 50 / 100;
+    // m.durasiBilas  = durasiTotal * 30 / 100;
+    // m.durasiKering = durasiTotal - m.durasiCuci - m.durasiBilas;
+
+    // Atur durasi tetap untuk simulasi
+    m.durasiCuci = 30;    // 30 detik
+    m.durasiBilas = 20;   // 20 detik
+    m.durasiKering = 20;  // 20 detik
 
     // --- PENYESUAIAN ESTIMASI SELESAI BERDASARKAN ANTRIAN ---
     int durasiTotal = m.durasiCuci + m.durasiBilas + m.durasiKering;
@@ -150,15 +158,15 @@ void tambahMobil() {
     m.estimasiSelesai = estimasiMulaiCuci + durasiTotal;
     // --------------------------------------------------------
 
+    // Konversi waktu datang ke waktu lokal (real time)
+    time_t waktuDatangTime = waktuMulaiSimulasi + m.waktuDatang;
+    struct tm *localDatang = localtime(&waktuDatangTime);
+    strftime(m.waktuDatangStr, sizeof(m.waktuDatangStr), "%H:%M:%S", localDatang);
+
     // Konversi estimasi selesai ke waktu lokal (real time)
     time_t estimasiSelesaiTime = waktuMulaiSimulasi + m.estimasiSelesai;
     struct tm *localEstimasi = localtime(&estimasiSelesaiTime);
     strftime(m.estimasiSelesaiStr, sizeof(m.estimasiSelesaiStr), "%H:%M:%S", localEstimasi);
-
-    // Format waktu tampil dalam hh.mm
-    char waktuDatangStr[6], waktuSelesaiStr[6];
-    formatWaktu(m.waktuDatang, waktuDatangStr);
-    formatWaktu(m.estimasiSelesai, waktuSelesaiStr);
 
     // Tampilkan hasil input
     garis();
@@ -168,8 +176,8 @@ void tambahMobil() {
     printf("Jenis Mobil      : %s\n", m.jenisMobil);
     printf("Plat Nomor       : %s\n", m.platNomor);
     printf("Jalur            : %s\n", m.jalur);
-    printf("Waktu Datang     : %s\n", waktuDatangStr);
-    printf("Estimasi Selesai : %s\n", waktuSelesaiStr);
+    printf("Waktu Datang     : %s\n", m.waktuDatangStr);
+    printf("Estimasi Selesai : %s\n", m.estimasiSelesaiStr);
     garis();
 
     // Tambahkan ke antrian
