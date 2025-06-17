@@ -1,0 +1,9 @@
+Plat: B 4321 ZZ    | Jenis: sedang    | Kupon: 1
+Riwayat waktu cuci:
+- Tuesday, 17-06-2025 Tuesday, 17-06-2025 12:15:00
+- Tuesday, 17-06-2025 12:15:00
+-------------------------------------------------------------
+Plat: F 5678 YY    | Jenis: besar    | Kupon: 1
+Riwayat waktu cuci:
+- Tuesday, 17-06-2025 09:16:05
+-------------------------------------------------------------
