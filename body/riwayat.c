@@ -44,6 +44,7 @@ void insertRiwayat(NodeRiwayat** head, Mobil data) {
         jumlahDataBaruRiwayat = 0;
     }
     rootTreeWaktu = insertTreeWaktu(rootTreeWaktu, data, data.waktuSelesaiEpoch);
+    simpanTreeWaktu(rootTreeWaktu, "treewaktu/treewaktu.txt");
 }
 
 // ===================== SIMPAN RIWAYAT KE FILE =====================

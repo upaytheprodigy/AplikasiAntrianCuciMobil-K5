@@ -156,12 +156,6 @@ void* prosesKering(void* arg) {
 
     insertRiwayat(&riwayat, jalur->mobilSedangDicuci);
 
-    rootTreeWaktu = insertTreeWaktu(
-        rootTreeWaktu,
-        jalur->mobilSedangDicuci,
-        jalur->mobilSedangDicuci.waktuSelesaiEpoch
-    );
-
     tambahKuponPlat(
         jalur->mobilSedangDicuci.platNomor,
         jalur->mobilSedangDicuci.jenisMobil,
