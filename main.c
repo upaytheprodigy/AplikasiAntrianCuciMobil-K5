@@ -197,6 +197,11 @@ int main() {
     } while (pilihan != 0);
 
     pthread_join(threadProses, NULL);
-    simpanTreeWaktu(rootTreeWaktu, "treewaktu.txt");
+    #ifdef _WIN32
+        system("if not exist treewaktu mkdir treewaktu");
+    #else
+        system("mkdir -p treewaktu");
+    #endif
+    simpanTreeWaktu(rootTreeWaktu, "treewaktu/treewaktu.txt");
     return 0;
 }

@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 
+extern TreeWaktu* rootTreeWaktu;
+
 // ===================== INSERT TREE WAKTU =====================
 TreeWaktu* insertTreeWaktu(TreeWaktu* root, Mobil data, int waktuSelesai) {
     if (root == NULL) {
@@ -111,12 +113,10 @@ void tampilkanRekapRentangWaktu(TreeWaktu* root, int jamAwal, int menitAwal, int
 
 void simpanTreeWaktuKeFile(TreeWaktu* root, FILE* file) {
     if (!root) return;
-    // Simpan preorder
     Mobil* m = &root->data;
-    fprintf(file, "treewaktu/treewaktu-%d;%s;%s;%s;%s;%d;%s\n",
+    fprintf(file, "%d;%s;%s;%s;%s;%d;%s\n",
         m->id, m->nama, m->jenisMobil, m->platNomor, m->jalur,
         root->waktuSelesai, m->waktuSelesaiStr
-        // tambahkan field lain sesuai kebutuhan
     );
     simpanTreeWaktuKeFile(root->left, file);
     simpanTreeWaktuKeFile(root->right, file);
@@ -124,7 +124,13 @@ void simpanTreeWaktuKeFile(TreeWaktu* root, FILE* file) {
 
 void simpanTreeWaktu(TreeWaktu* root, const char* filename) {
     FILE* file = fopen(filename, "w");
-    if (!file) return;
+    if (!file) {
+        printf("Gagal membuka file %s untuk penulisan!\n", filename);
+        return;
+    }
+    if (!root) {
+        printf("[DEBUG] Tree waktu kosong, tidak ada data yang disimpan.\n");
+    }
     simpanTreeWaktuKeFile(root, file);
     fclose(file);
 }
