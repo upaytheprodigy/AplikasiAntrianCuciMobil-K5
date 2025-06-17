@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "antrian.h": "c"
+        "antrian.h": "c",
+        "string.h": "c"
     }
 }

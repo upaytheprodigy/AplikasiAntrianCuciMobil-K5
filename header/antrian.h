@@ -8,21 +8,21 @@ typedef struct NodeAntrian {
     struct NodeAntrian* next;
 } NodeAntrian;
 
-// Prototipe fungsi
-void enqueue(NodeAntrian** front, Mobil data); // Menambahkan mobil ke antrian
-Mobil dequeue(NodeAntrian** front); // Mengambil mobil dari antrian
-void printQueue(NodeAntrian* front, const char* jenis); // Menampilkan antrian berdasarkan jenis (VIP/Reguler)
-int countQueue(NodeAntrian* front);  // OPSIONAL, untuk membandingkan reguler 1 dan 2
-Mobil* findMobil(NodeAntrian* front, int mode, const char* keyword);  // untuk pembatalan
-void deleteMobil(NodeAntrian** front, int id); // untuk menghapus mobil dari queue saat dibatalkan
-void batalkanAntrian(int mode, const char* keyword); // untuk membatalkan dan memindahkan mobil ke stack pembatalan
-void tampilAntrian(); // Tampilkan semua antrian: VIP, Reguler, Pembilasan, Pengeringan
-void prosesAntrianOtomatis(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[], int tampilPesan);void* loopProsesAntrian(void* arg); // Thread untuk proses antrian otomatis
+// Fungsi antrian
+void enqueue(NodeAntrian** front, Mobil data);
+void printQueue(NodeAntrian* front, const char* jenis);
+Mobil* findMobil(NodeAntrian* front, int mode, const char* keyword);
+void batalkanAntrian(int mode, const char* keyword);
+void prosesAntrianOtomatis(JalurCuci jalurCuci[], JalurCuci jalurBilas[], JalurCuci jalurKering[], int tampilPesan);
+void* loopProsesAntrian(void* arg);
+void tampilkanSemuaJalur(JalurCuci* jalurCuci, int nCuci, JalurCuci* jalurBilas, int nBilas, JalurCuci* jalurKering, int nKering);
 
+// Global antrian
 extern NodeAntrian* antrianVIP;
 extern NodeAntrian* antrianReguler;
 extern NodeAntrian* antrianPembilasanVIP;
 extern NodeAntrian* antrianPembilasanReguler;
 extern NodeAntrian* antrianPengeringanVIP;
 extern NodeAntrian* antrianPengeringanReguler;
+
 #endif
