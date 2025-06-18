@@ -1,4 +1,4 @@
- =============================================================
+ 
   SISTEM INFORMASI ANTRIAN CUCI MOBIL
   -------------------------------------------------------------
   Deskripsi:
@@ -14,7 +14,6 @@
   - Muhammad Naufal Nurmayadi (Pembatalan, Riwayat, TreeWaktu)
   - Revaldi Ardhi Prasetyo (Jalur & Kupon)
   - Rina Permata Dewi (Mobil & Antrian)
-  =============================================================
 
   Petunjuk Penggunaan:
   ---------------------
