@@ -1,3 +1,11 @@
+/*
+Program        : Manajemen Data Mobil
+Deskripsi     : Program ini mengelola data mobil yang akan dicuci termasuk
+                input data mobil baru dan pengecekan status mobil dalam sistem
+Pembuat        : Rina Permata Dewi
+NIM           : 241511061
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

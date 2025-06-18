@@ -1,3 +1,12 @@
+/*
+Program        : Pembatalan Antrian Cuci Mobil
+Deskripsi      : Program ini bertujuan untuk menangani pembatalan antrian mobil
+                yang belum masuk proses pencucian dengan menggunakan struktur
+                data Stack untuk menyimpan data mobil yang dibatalkan
+Pembuat        : Muhammad Naufal Nurmayadi
+NIM            : 241511053
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

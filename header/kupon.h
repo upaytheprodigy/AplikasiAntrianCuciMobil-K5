@@ -1,3 +1,11 @@
+/*
+Program        : Manajemen Kupon Cuci Mobil
+Deskripsi      : Program ini mengelola sistem kupon untuk pelanggan cuci mobil
+                 termasuk pembuatan, penggunaan, dan validasi kupon
+Pembuat        : Revaldi Ardhi Prasetyo
+NIM            : 241511057
+*/
+
 #ifndef KUPON_H
 #define KUPON_H
 
