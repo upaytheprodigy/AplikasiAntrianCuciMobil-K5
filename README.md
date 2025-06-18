@@ -1,5 +1,4 @@
-/*
-  =============================================================
+ =============================================================
   SISTEM INFORMASI ANTRIAN CUCI MOBIL
   -------------------------------------------------------------
   Deskripsi:
@@ -16,23 +15,7 @@
   - Revaldi Ardhi Prasetyo (Jalur & Kupon)
   - Rina Permata Dewi (Mobil & Antrian)
   =============================================================
-*/
 
-#include "../header/antrian.h"
-#include "../header/jalur.h"
-#include "../header/pembatalan.h"
-#include "../header/riwayat.h"
-#include "../header/treewaktu.h"
-#include "../header/mobil.h"
-#include "../header/kupon.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <windows.h>
-#define sleep(x) Sleep(1000 * (x))
-
-/*
   Petunjuk Penggunaan:
   ---------------------
   1. Jalankan program utama dari file main.c
