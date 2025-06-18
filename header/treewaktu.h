@@ -1,3 +1,12 @@
+/*
+Program        : Tree Waktu Pencucian Mobil
+Deskripsi      : Program ini mengelola dan mencari data waktu pencucian mobil
+                 menggunakan struktur data Binary Search Tree (BST) untuk
+                 memudahkan pencarian dan pengurutan berdasarkan waktu
+Pembuat        : Muhammad Naufal Nurmayadi
+NIM            : 241511053
+*/
+
 #ifndef TREEWAKTU_H
 #define TREEWAKTU_H
 #include "mobil.h"

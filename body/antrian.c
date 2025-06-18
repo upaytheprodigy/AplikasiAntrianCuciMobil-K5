@@ -1,3 +1,12 @@
+/*
+Program         : Antrian Cuci Mobil
+Deskripsi       : Program ini mengelola antrian cuci mobil dengan menggunakan 
+                  struktur data Queue untuk menangani antrian mobil VIP dan
+                  Reguler, serta proses perpindahan antar tahap pencucian
+Pembuat         : Rina Permata Dewi
+NIM             : 241511061
+*/
+
 #include "../header/antrian.h"
 #include "../header/jalur.h"
 #include "../header/pembatalan.h"

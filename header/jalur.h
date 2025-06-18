@@ -1,3 +1,11 @@
+/*
+Program        : Jalur Pencucian Mobil
+Deskripsi      : Program ini mengelola jalur pencucian mobil VIP dan Reguler
+                 serta memantau status setiap jalur pencucian yang tersedia
+Pembuat        : Revaldi Ardhi Prasetyo
+NIM            : 241511057
+*/
+
 #ifndef JALUR_H
 #define JALUR_H
 
